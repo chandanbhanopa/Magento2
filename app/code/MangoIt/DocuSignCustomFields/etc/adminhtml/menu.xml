@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="MangoIt_DocuSignCustomFields::parent" title="DocuSIGN CustomFields" module="MangoIt_DocuSignCustomFields" sortOrder="10" resource="MangoIt_DocuSignCustomFields::parent"/>
+        <add id="MangoIt_DocuSignCustomFields::index" title="Custom Variable Settings" module="MangoIt_DocuSignCustomFields" sortOrder="10" action="docusigncustomfields/index" resource="MangoIt_DocuSignCustomFields::index" parent="MangoIt_DocuSignCustomFields::parent"/>
+		
+    </menu>
+</config>

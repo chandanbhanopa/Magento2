@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+	<head>
+		<title>Devicedesk Pty Ltd admin</title>
+		<css src="MangoIt_Backend::css/admin.css" order="102"/>
+	</head>
+	<body>
+		<referenceContainer name="header">
+			<block class="Magento\Backend\Block\Page\Header" name="logo" before="-">
+				<arguments>
+					<argument name="show_part" xsi:type="string">logo</argument>
+					<argument name="title" xsi:type="string">Devicedesk Pty Ltd</argument>
+					<argument name="logo_image_src" xsi:type="string">MangoIt_Backend/images/main_admin.svg</argument>
+				</arguments>
+			</block>
+		</referenceContainer>
+		<referenceContainer name="footer">
+			<container name="legal" htmlTag="div" htmlClass="footer-legal">
+				<container name="legal.copyright" htmlTag="p" htmlClass="copyright col-m-6">
+					<block class="MangoIt\Backend\Block\Page\Copyright" name="copyright" as="copyright" />
+				</container>
+				<container name="legal.system" htmlTag="div" htmlClass="footer-legal-system col-m-6">
+					<block class="MangoIt\Backend\Block\Page\Footer" name="version" as="version" />
+				</container>
+			</container>
+		</referenceContainer>
+
+
+
+
+	</body>
+</page>

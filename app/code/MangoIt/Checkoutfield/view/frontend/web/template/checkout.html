@@ -1,0 +1,16 @@
+<li id="customer-attributes">
+    <div class="step-title" data-bind="i18n: 'Customer Attributes'" data-role="title"></div>
+    <br/>
+    <form class="form" id="customer-attributes-form" autocomplete="off">
+        <div id="customer-attributes-div" class="fieldset address">
+            <!-- ko foreach: { data: elems, as: 'element' } -->
+            <!-- ko template: element.getTemplate() --><!-- /ko -->
+            <!-- /ko -->
+        </div>
+        
+        <div id="customer-account-number" class="fieldset">
+            <input type="text" name="account-number" id="account-number"/>
+        </div>
+        
+    </form>
+</li>

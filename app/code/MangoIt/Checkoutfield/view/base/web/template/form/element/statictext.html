@@ -1,0 +1,18 @@
+<!--
+/**
+ * @author MangoIt Team
+ * @package MangoIt_Checkoutfield
+ */
+-->
+
+    <p class="admin__control-textarea" data-bind="
+        html: value,
+        hasFocus: focused,
+        attr: {
+            id: uid
+        }">
+    </p>
+
+<!-- ko if: notice -->
+<div class="admin__field-note" data-bind="attr: {id: noticeId}"><span data-bind="text: notice"></span></div>
+<!-- /ko -->

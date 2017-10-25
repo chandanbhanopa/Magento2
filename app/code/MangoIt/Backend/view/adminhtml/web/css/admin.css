@@ -1,0 +1,9 @@
+.copyright .link-copyright:before {
+    transition: color .1s linear;
+    color: #eb5202;
+    content: url(../images/admin_footer.png);
+    display: block;
+    font-size: 2.5rem;
+    position: relative;
+    top: -.2rem;
+}

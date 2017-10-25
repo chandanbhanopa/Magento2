@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-login" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <title>Devicedesk Pty Ltd login</title>
+        <link src="MangoIt_Backend::favicon-32x32.ico" rel="icon" sizes="32x32" order="100" />
+    </head>
+    <body>
+        <!-- @todo ui: - delete after bugfix -->
+        <referenceContainer name="legal" remove="true"/>
+        <referenceContainer name="page.menu" remove="true"/>
+        <referenceContainer name="header" remove="true"/>
+        <referenceBlock name="page.title" remove="true"/>
+        <referenceBlock name="user" remove="true"/>
+
+        <referenceBlock name="global.search" remove="true"/>
+        <referenceBlock name="notification.messages" remove="true"/>
+        <!-- @todo ui: - end -->
+
+        <move element="messages" destination="login.content" before="-"/>
+        <move element="copyright" destination="login.footer" before="-"/>
+        <move element="logo" destination="login.header" before="-"/>
+        <referenceBlock name="logo">
+            <arguments>
+                <argument name="title" xsi:type="string">Devicedesk Pty Ltd</argument>
+                <argument name="logo_image_src" xsi:type="string">MangoIt_Backend/images/login_page_image.svg</argument>
+            </arguments>
+        </referenceBlock>
+
+    </body>
+</page>

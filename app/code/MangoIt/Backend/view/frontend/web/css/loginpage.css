@@ -1,0 +1,4 @@
+
+.customer-account-login .footer-top-container.section-container, .customer-account-login .welcome, .customer-account-login .nav-container, .customer-account-login #user-menu-wrapper-regular, .customer-account-login .form.minisearch  {
+    display: none;
+}
