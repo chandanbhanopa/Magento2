@@ -1,0 +1,244 @@
+https://www.docusign.com/blog/dsdev-using-docusign-rest-api-add-additional-documents-envelope/
+
+
+
+
+https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes
+
+https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes/<envelope ID>/documents
+
+https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes/<envelope ID>/documents/<document ID>/templates
+
+https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes/<envelope ID>
+
+
+
+========== UPWORK detail ======================
+Project Code: FRA-592
+
+Working profile:
+hardiya-satyam/satyam@)!&mango!the
+
+Communication profile:
+borgawkarneeta/nborgawkarupwork@)!&
+================================================
+
+ssh -i dbe.pem ubuntu@52.64.208.224
+Magento 2 root directory: /home/ubuntu/magento2/
+ubuntu@52.64.208.224
+
+NEW updated command:
+
+www@52.64.208.224
+ssh -i dbe-www.pem www@52.64.208.224
+
+woolworths
+ssh -i wws.pem ubuntu@13.54.92.80
+http://woolworths.devicedesk.net/requests/firewalls.html
+greg.rudakov@gmail.com / Franklin21
+http://woolworths.devicedesk.net/admin_1caffy
+Username/Password : admin/wrEWUqeP4phaswaN
+
+============= Admin Detail ===================
+http://52.64.208.224/admin_1caffy/
+
+Username/Password : admin/wrEWUqeP4phaswaN
+
+http://localhost/devicedesk/admin_1caffy/
+
+==============JIRRA Details===============
+
+hello@franciskim.co/xerAst2ThaSpEwa2
+https://caboodlenow.atlassian.net
+
+===============GIT==================
+
+https://github.com/franciskim/devicedesk.git
+ashishgavshinde/ ashish123
+
+============Docusign details==============
+
+https://www.docusign.com/
+test.abc.1207@gmail.com
+test@1234/test@123
+
+
+
+neeta.anylinuxwork@gmail.com
+test@1234
+Security answer:
+manish
+
+
+===========================API Tutorials =========================
+
+API call : https://demo.docusign.net/restapi/v2/accounts/3654315/envelopes
+https://www.docusign.com/developer-center/recipes
+
+
+=============Customer Login============
+
+http://52.64.208.224/privacy-test
+
+http://52.64.208.224/terms
+
+greg.rudakov@gmail.com/java@123
+
+
+greg.rudakov@gmail.com / Franklin21
+
+
+localhost test account:
+
+test.abc.1207@gmail.com/test@1234
+
+================ Magento Commands ==============================
+
+
+php bin/magento setup:upgrade --keep-generated && php bin/magento setup:di:compile && php bin/magento setup:static-content:deploy --language en_AU --language en_US && php bin/magento indexer:reindex && php bin/magento cache:clean && php bin/magento cache:flush
+
+php bin/magento setup:static-content:deploy --language en_US
+
+
+=================== Docusing account details==================================
+
+URL: https://account.docusign.com/#/username
+
+Sandbox account URL:
+https://demo.docusign.net/Member/MemberLogin.aspx?event=logout
+Email : support@devicedesk.com
+Password: Franklin21
+
+
+API Username
+068c5b82-af73-4531-a8bf-750857a40697 or support@devicedesk.com
+API Password
+your current password
+API Account ID
+d212b53f-05c6-4416-aeea-975ed6e974b5
+
+Integrator Keys
+41450d83-fb8a-4613-9c36-96e87942b1c8
+
+============================Documantation===============================================
+
+Carbon Copy Documentation:
+
+https://www.docusign.com/p/RESTAPIGuide/Content/REST%20API%20References/Recipient%20Parameter.htm
+https://www.docusign.com/developer-center/recipes/send-multiple-docs
+https://stackoverflow.com/questions/37485594/rest-api-to-create-and-add-recipients-in-docusign
+
+https://www.docusign.com/developer-center/recipes/request-a-signature-via-email-using-a-template
+
+
+https://github.com/docusign/docusign-rest-recipes/blob/master/download_documents/download_documents.php
+
+https://github.com/docusign/docusign-rest-recipes/blob/master/request_sig_via_email/request_sig_via_email.php
+
+https://www.docusign.com/p/RESTAPIGuide/RESTAPIGuide.htm#REST API References/Recipients/Carbon Copies Recipient.htm%3FTocPath%3DREST%2520API%2520References%7CSend%2520an%2520Envelope%2520or%2520Create%2520a%2520Draft%2520Envelope%7CRecipient%2520Parameters%7C_____2
+
+
+
+https://www.docusign.com/developer-center/recipes/request-a-signature-via-email
+
+https://www.parenttechnology.com/blog/magento-commerce/237-email-variables-for-magento.html
+
+==============================================================================
+
+
+It should show a dropdown on the checkout
+
+User can enter the account number:- 
+
+Select account number
+-- Enter account number
+
+
+If you select Enter account number, a text box appears
+
+You enter numbers. This gets saved as an order attribute. And also a customer attribute.
+
+Next time this customer places an order, you should see the account number used previously (eg. 1234567)
+
+- Select account number-- 123456789-- Enter account number
+
+======================Test email on localhost =================
+ashish@mailinator.com
+Test@1234
+
+
+/var/www/html/devicedesk/vendor/magento/module-sales/Block/Adminhtml/Order/View/Info.php
+/var/www/html/devicedesk/app/code/MangoIt/Checkoutfield/view/frontend/web/template/checkout.html
+/var/www/html/magento2/app/code/Zalw/Onepagecheckout/view/frontend/web/js/zalw/zalw_onepagecheckout.js
+/var/www/html/devicedesk/app/code/MangoIt/Checkoutfield/view/frontend/web/js/view/checkout.js
+/var/www/html/devicedesk/pub/static/frontend/Infortis/ultimo/en_AU/MangoIt_Checkoutfield/js/view/checkout.js
+/var/www/html/devicedesk/app/code/MangoIt/Checkoutfield/view/base/web/js/form/element/select.js
+/var/www/html/magento2/app/code/Zalw/Onepagecheckout/view/frontend/web/js/view/placeorder.js
+
+
+//logger by object manager
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$logger = $objectManager->create('\Psr\Log\LoggerInterface');
+/* save log into debug.log */
+$logger->info($attribute->getAttributeCode());
+$logger->info('IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII');
+
+=================================Working files========================================
+21 Sept 2017
+app/design/frontend/Infortis/base/Infortis_Base/templates/html/header.phtml
+app/design/frontend/Infortis/Magento_Checkout/templates/cart/minicart.phtml
+
+Done 
+Dev-23
+Dev-20
+======================================================================================
+
+post:https://demo.docusign.net/restapi/v2/accounts/3654315/envelopes
+
+{  
+    "emailSubject":"Test population of custom fields with Magento Data",
+    "status":"sent",
+    "templateId":"9faec732-8ed2-4e1f-9f73-3cfa6442b2ec",
+    "templateRoles":[  
+        {  
+            "email":"greg.rudakov@devicedesk.com",
+            "roleName":"signer",
+            "tabs":{  
+                "textTabs":[  
+                    {  
+                        "tabLabel":"ddcompany",
+                        "value":"Magento Company Name"
+                    },
+                    {  
+                        "tabLabel":"ddaddress",
+                        "value":"Magento Address"
+                    },
+                    {  
+                        "tabLabel":"ddphone",
+                        "value":"Magento Phone"
+                    },
+                    {  
+                        "tabLabel":"ddsubmitdate",
+                        "value":"Magento Order Submitted Date"
+                    },
+                    {  
+                        "tabLabel":"ddorderblock",
+                        "value":"Magento Ordered Items Text"
+                    },
+                    {  
+                        "tabLabel":"ddcontactname",
+                        "value":"Magento Full Name"
+                    },
+                    {  
+                        "tabLabel":"ddaccount",
+                        "value":"Magento custom user field"
+                    },
+                    {  
+                        "tabLabel":"ddemail",
+                        "value":"Magento Email Address"
+                    }
+                ]
+            }
+        }
+    ]
+}
