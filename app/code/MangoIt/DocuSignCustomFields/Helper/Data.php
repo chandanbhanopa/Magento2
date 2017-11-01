@@ -70,7 +70,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
 
     private $apiBaseUrl;
 
+    private $accountId;
     
+    private $config = array();
+
+
+    public function __construct(){
+        
+    }
+
 
     public function apiCall() {
 
@@ -93,6 +101,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         $this->objectManager = ObjectManager::getInstance();
         $this->scopeConfigInterface = 'Magento\Framework\App\Config\ScopeConfigInterface';
         $this->scopeConfig = $this->objectManager->get($this->scopeConfigInterface);
+
         $this->liveMode = $this->scopeConfig->getValue('docusing_settings/api_settings/sandbox_mode');
         $this->sandboxEndPoint = $this->scopeConfig->getValue('docusing_settings/api_settings/api_sandbox_hostname');
         $this->liveEndPoint = $this->scopeConfig->getValue('docusing_settings/api_settings/api_live_hostname');
@@ -100,6 +109,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         $this->apiUserName = $this->scopeConfig->getValue('docusing_settings/api_settings/api_user_name');
         $this->apiPassword = $this->scopeConfig->getValue('docusing_settings/api_settings/api_password');
         $this->integratorKey = $this->scopeConfig->getValue('docusing_settings/api_settings/api_integrator_key');
+
+        $this->accountId = $this->scopeConfig->getValue('docusing_settings/api_settings/account_id');
 
         $this->templateId = $this->scopeConfig->getValue('docusing_settings/mangoit_template_settings/template_id');
         $this->subject = $this->scopeConfig->getValue('docusing_settings/mangoit_template_settings/subject');
@@ -177,7 +188,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
 
         $this->registerValue();
         $this->apiAuthentication();
-
         //$this->apiUserName = "neeta.anylinuxwork@gmail.com";
         //$this->apiPassword = "test@1234";
         //$this->integratorKey = "7d717775-d616-4021-85cb-4fa14581b249";
@@ -212,7 +222,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
             );
         }
         return $fields;
-        //die("");
     }
 
     private function getHeader() {
@@ -291,7 +300,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
 
 
 
-    public function checkpost($customFields = array()){
+    public function checkpost($customFields = array()) {
 
         $this->registerValue();
         // Input your info here:
@@ -376,7 +385,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
             );
         }
         
-
+        $documents = array(
+                "documentId" => 1,
+                "name" =>"Order summery",
+                "order"=>1,
+                "pages"=>1,
+                "documentBase64"=>''
+        );
     /////////////////////////////////////////////////////////////////////////////////////////////////
     // STEP 2 - Create and envelope using one template role (called "Signer1") and one recipient
     /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -386,7 +401,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
             "templateId" => $templateId, 
             "templateRoles" => array( 
                 array( 
-                    "email" => "greg.rudakov@devicedesk.com", 
+                    //"email" => "greg.rudakov@devicedesk.com", 
+                    "email" => "neeta.anylinuxwork@gmail.com", 
                     "roleName" => $templateRoleName ,
                     "tabs" => array(
                         "textTabs"=> $customFields
@@ -429,6 +445,101 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
     }
 
 
+    public function curlRequest(){
+
+    }
+
+
+    /* Create an Envelop and return its id */
+    /* Use POST method */
+    /* Endpoint: https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes */
+    public function createEnvelop() {
+
+    }
+
+
+    /**
+    Step 2: Add the additional document(s)
+    Endpoint: https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes/<envelope ID>/documents
+    Method : PUT
+
+    Now that the draft is created, 
+    you can add all the documents by making a PUT request to the following.
+    Please note that you’ll need to convert the file binary to base64
+
+    {
+
+    "documents": [{
+
+        "documentId": "2",
+
+        "name": "Additional Document 1.pdf",
+
+        "order": "2",
+
+        "pages": "1",
+
+        "documentBase64": "<insert base64 content here>"
+
+    }]
+
+    }
+
+    */
+
+
+    public function addDocumentToEnvelop(){
+
+    }
+
+    /**
+    Step 3: Apply the original template to each added document
+    Endpoint: https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes/<envelope ID>/documents/<document ID>/templates
+
+    Method: POST
+
+    {
+
+    "documentTemplates": [{
+
+        "templateId": "1345312b-f341-abc3-9178-44h15f7d1gha",
+
+        "documentId": "2",
+
+        "documentStartPage": "1",
+
+        "documentEndPage": "1"
+
+    }]
+
+    }
+
+    */
+    
+
+    public function applyTemplateToAddedDocument(){
+
+    }
+
+    /**
+    Step 4: Send the envelope
+
+    With the documents added and templates re-applied, simply do a PUT on the envelope to send it out.
+
+    Endpoint: https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes/<envelope ID>
+
+    Method: PUT
+
+    {
+
+    "status": "sent"
+
+    }
+
+    */
+    public function sendRequest(){
+
+    }
 
 
 
