@@ -76,209 +76,186 @@ class Index extends \Magento\Framework\App\Action\Action {
 
         parent::__construct($context);
 
-        //$mpdf = new Mpdf();
-        //echo "<pre>";
-        //print_r(get_class_methods($mpdf));
-
-        //$mpdf->WriteHTML($html);
-        //$mpdf->SetDisplayMode('fullpage');
-
-        //$mpdf->Output();
-
-
-
-        // $this->objectManager = ObjectManager::getInstance();
-        // $scopeConfigInterface = 'Magento\Framework\App\Config\ScopeConfigInterface';
-        // $this->scopeConfig = $this->objectManager->get($scopeConfigInterface);
-
-        // /*URL interface*/
-        // $this->url = $this->objectManager->get('\Magento\Framework\UrlInterface');
-        // $loginUrl =  $this->url->getUrl('customer/account/login');
-        // /* Get user session*/
-        // $this->customerSession = $this->objectManager->get('Magento\Customer\Model\Session');
-
-        // $customer = $this->customerSession->getCustomer()->getData();
-        // $customerMapVariable['email'] = $customer['email'];
-        // $customerMapVariable['contact_name'] = $customer['firstname']." ".$customer['lastname'] ;
-        // $customerAddress = $this->getCustomerAddress($customer['default_shipping']);
-        // $contactNumber = array_shift($customerAddress);
-        // $companyName = array_shift($customerAddress);
-        // $customerMapVariable['address'] = implode(", ", $customerAddress);
-        // $customerMapVariable['phone_number'] = $contactNumber;
-        // $customerMapVariable['compnay_name'] = $companyName;
-        // $customerMapVariable['reference_number'] = "10001";
-        // if(!$this->customerSession->isLoggedIn()) {
-        //     //$this->_redirect($loginUrl);
-        //    //return;
-        // }
         
-        
-        // $this->liveMode = $this->scopeConfig->getValue('docusing_settings/api_settings/sandbox_mode');
-        // $this->sandboxEndPoint = $this->scopeConfig->getValue('docusing_settings/api_settings/api_sandbox_hostname');
-        // $this->liveEndPoint = $this->scopeConfig->getValue('docusing_settings/api_settings/api_live_hostname');
-        // $this->apiUserName = $this->scopeConfig->getValue('docusing_settings/api_settings/api_user_name');
-        // $this->apiPassword = $this->scopeConfig->getValue('docusing_settings/api_settings/api_password');
-        // $this->integratorKey = $this->scopeConfig->getValue('docusing_settings/api_settings/api_integrator_key');
-
-        // $this->templateId = $this->scopeConfig->getValue('docusing_settings/mangoit_template_settings/template_id');
-        // $this->subject = $this->scopeConfig->getValue('docusing_settings/mangoit_template_settings/subject');
-
         
     }
 
     public function execute() {
+        $objectManager = ObjectManager::getInstance();
+        $orderModel = $objectManager->create("\Magento\Sales\Model\Order");
+        $order = $orderModel->load(18);
 
-
-
-
-        //$mpdf = new \Mpdf();
-        //echo "<pre>";
-        //print_r(get_class_methods($mpdf));
-
-        # lib\internal\LoadLibrary.php
+        $orderTotal = $order->getGrandTotal();
+        $productIds = array();
+        $productArray = array();
         
-        //$ob = new \LoadLibrary();
-        //$ob->loadData();
-        //require_once "/var/www/html/devicedesk/lib/internal/mpdf/Test.php";
-        $mpdf = new \Mpdf\Test();
-        $mpdf->demo();
-        die;
+        foreach ($order->getAllVisibleItems() as $key => $_item) {
+            $productOptions = array();
+            $productOptions = $_item->getProductOptions();
+            $simpleProductOptions = array();
+            $bundleProductOptions = array();
+            $productType = $_item->getProductType();
 
-        //$this->signatureRequestFromTemplate();
-        //$this->testapi();
-    }
+            $finalArray =  array(
+                "item_id"=>$_item->getId(),
+                "type"=>$_item->getProductType(),
+                "sku" => $_item->getSku(),
+                "name" => $_item->getName(),
+                "quantity"=> $_item->getQtyOrdered(),
+                "price" => $_item->getPrice()
+            );
 
 
-public function signatureRequestFromTemplate() {
-    /*Admin setting required*/
-    $username = $this->apiUserName;
-    /*Admin setting required*/
-    $password = $this->apiPassword;
-    /*Admin setting required*/
-    $integrator_key = $this->integratorKey;  
-
-    $loggedInUserEmail = $this->customerSession->getCustomer()->getEmail();
-    $loggedInUsername = $this->customerSession->getCustomer()->getName();
-    $roleName = "DS Sender";
-
-    /*Template variable*/
-
-    $emailTemplateId = $this->templateId;
-    $emailTemplateSubject = $this->subject;
-        // change to production (www.docusign.net) before going live
-    /*Admin setting required*/
-    if( $this->liveMode ){
-        $host = $this->sandboxEndPoint;
-    } else {
-        $host = $this->sandboxEndPoint;
-    }
-
-        // create configuration object and configure custom auth header
-    $config = new \DocuSign\eSign\Configuration();
-    $config->setHost($host);
-
-    $config->addDefaultHeader("X-DocuSign-Authentication", "{\"Username\":\"" . $username . "\",\"Password\":\"" . $password . "\",\"IntegratorKey\":\"" . $integrator_key . "\"}");
-
-        // instantiate a new docusign api client
-    $apiClient = new \DocuSign\eSign\ApiClient($config);
-    $accountId = null;
-
-    try {
-            //*** STEP 1 - Login API: get first Account ID and baseURL
-
-        $authenticationApi = new \DocuSign\eSign\Api\AuthenticationApi($apiClient);
-        $options = new \DocuSign\eSign\Api\AuthenticationApi\LoginOptions();
-        $loginInformation = $authenticationApi->login($options);
-        if(isset($loginInformation) && count($loginInformation) > 0)
-        {
-            $loginAccount = $loginInformation->getLoginAccounts()[0];
-            $host = $loginAccount->getBaseUrl();
-            $host = explode("/v2",$host);
-            $host = $host[0];
-
-                // UPDATE configuration object
-            $config->setHost($host);
-
-                // instantiate a NEW docusign api client (that has the correct baseUrl/host)
-            $apiClient = new \DocuSign\eSign\ApiClient($config);
-
-            if(isset($loginInformation))
-            {
-                $accountId = $loginAccount->getAccountId();
-
-                if(!empty($accountId))
-                {
-                        //*** STEP 2 - Signature Request from a Template
-                        // create envelope call is available in the EnvelopesApi
-                    $envelopeApi = new \DocuSign\eSign\Api\EnvelopesApi($apiClient);
-
-                        // assign recipient to template role by setting name, email, and role name.  Note that the
-                        // template role name must match the placeholder role name saved in your account template.
-                    $templateRole = new  \DocuSign\eSign\Model\TemplateRole();
-
-                    /*Registered user email id*/
-                    $templateRole->setEmail($loggedInUserEmail);
-                    /*Registered user name*/
-                    $templateRole->setName($loggedInUsername);
-                    /*Role name*/
-                    $templateRole->setRoleName($roleName);             
-
-                        // instantiate a new envelope object and configure settings
-                    $envelop_definition = new \DocuSign\eSign\Model\EnvelopeDefinition();
-
-                    /* Admin setting for subject */
-                    $envelop_definition->setEmailSubject($emailTemplateSubject);
-                    /* Admin setting for template id */
-                    $envelop_definition->setTemplateId($emailTemplateId);
-
-                    $envelop_definition->setTemplateRoles(array($templateRole));
-
-                        // set envelope status to "sent" to immediately send the signature request
-                    $envelop_definition->setStatus("sent");
-
-                        // optional envelope parameters
-                    $options = new \DocuSign\eSign\Api\EnvelopesApi\CreateEnvelopeOptions();
-                    $options->setCdseMode(null);
-                    $options->setMergeRolesOnDraft(null);
-                    $envelop_summary = $envelopeApi->createEnvelope($accountId, $envelop_definition, $options);
-
-                    if(!empty($envelop_summary))
-                    {
-                        echo "$envelop_summary";
+            if( $productType == "simple" ) {
+                if(isset($productOptions['options'])) {
+                    $simpleProductOptions = $productOptions['options'];
+                }
+                $simpleOptionsFinalArray = array();
+                if(count($simpleProductOptions) > 0 ){
+                    foreach($simpleProductOptions as $simpleOptionKey => $simpleOptionValue) {
+                        $simpleOptionsFinalArray[] =  array(
+                            "title" =>$simpleOptionValue['label'],
+                            "qty" =>$simpleOptionValue['value'],
+                            "price" =>''
+                        );       
                     }
                 }
+                $finalArray['options'] = $simpleOptionsFinalArray;
+                $productArray[$_item->getId()][] = $finalArray;
+            } else if( $productType == "virtual") {
+                $productArray[$_item->getId()][] = $finalArray;
+            } else if($productType == "bundle") {
+                if(isset($productOptions['bundle_options'])) {
+                    $bundleProductOptions = $productOptions['bundle_options'];
+                }
+                $bundleFinalArray = array();
+                if(count($bundleProductOptions) > 0 ) {
+                    foreach($bundleProductOptions as $optionKey => $optionValue) {
+                        $bundleFinalArray[] = $optionValue['value'][0]; 
+                    }
+                }
+
+                $finalArray['options'] = $bundleFinalArray;
+                $productArray[$_item->getId()][] = $finalArray;
+            } else if($productType == "configurable") {
+                $productArray[$_item->getId()][] = $finalArray;
             }
         }
-    }
-    catch (\DocuSign\eSign\ApiException $ex)
-    {
-        echo "Exception: " . $ex->getMessage() . "\n";
-    }
-}
 
 
-public function getCustomerAddress($addressId = "") {
+         $this->orderHtml($productArray,"1001",date("d-m-Y"));
+        
 
-    $addressArray = array();    
-    if( $addressId ){
-        $address = $this->objectManager->create("Magento\Customer\Model\Address");
-        $addressData = $address->load($addressId);
-        $addressArray['telephone'] = $addressData->getData('telephone');
-        $addressArray['company'] = $addressData->getData('company');
-        $addressArray['street'] = $addressData->getData('street');
-        $addressArray['city'] = $addressData->getData('city');
-        $addressArray['region'] = $addressData->getData('region');
-        $addressArray['country_id'] = $addressData->getData('country_id');
-        $addressArray['postcode'] = $addressData->getData('postcode');
 
-        return $addressArray;
     }
 
-}
+    public function orderHtml($orderItems = array(), $orderId = '', $orderDate = '') {
 
-public function getFormatedAddress( $address = array() ) {
-    return implode(", ", $address);
-}
+        //print_r($orderItems);
+        //die;
+        $om = ObjectManager::getInstance();
+        $storeManager = $om->get('Magento\Store\Model\StoreManagerInterface');
+        $imgname = 'sales_express.png';
+        $image = $storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . $imgname;
+
+
+        $finalHtml = '<!DOCTYPE html>
+        <html>
+        <head>
+        <title>Order Summery</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <meta name="keywords" content="">
+        </head>
+        <body style="margin: auto; background:#cecece;font-family:Arial">
+        <table width="100%" height="100%" border="0" cellspacing="30" cellpadding="0" align="center" style="margin:auto; background:#fff">
+        <tr>
+        <td style="width: 100%">
+        <table style="width: 100%">
+        <tr>
+        <td style="text-align: left;">
+        <span><img src = "'.$image.'"/></span><br/>
+        </td>
+        </tr>
+        <tr>
+        <td><br/></td>
+        </tr>
+        <tr>
+        <td>
+        <span style="font-family:Arial; font-size:24px;color:#4d4843"><strong>Order #'.$orderId.'</strong></span>
+        </td>
+        </tr>
+
+        </table>
+        <br/>
+        <table style="width: 100%;" cellpadding="10" cellspacing="0">
+        <tr>
+        <td style="width:63%; border-bottom:1px solid #ddd;font-size:18px;color:#4d4843;"><strong>Product Name</strong></td>
+        <td style="width:20%; border-bottom:1px solid #ddd;font-size: 18px;color:#4d4843;"><strong>SKU</strong></td>
+        <td style="width:10%; border-bottom:1px solid #ddd;font-size: 18px; color:#4d4843;"><strong>Price</strong></td>
+        <td style="width:10%; border-bottom:1px solid #ddd;font-size: 18px;color:#4d4843; "><strong>Qty</strong></td>
+        <td style="width:10%; border-bottom:1px solid #ddd;font-size: 18px;color:#4d4843;"><strong>Subtotal</strong></td>
+
+        </tr>';
+
+
+        $total = 0; 
+        $shipping_handling = 20;   
+        $tax = 10;
+        $grandTotal = 0;
+
+        if(!empty($orderItems)):
+            foreach($orderItems as $productArray):
+                 foreach($productArray as $product):
+                    $finalHtml .=  '<tr>';
+                    $finalHtml .= ' <td style=" color:#4d4843;font-size: 16px;"><strong>'.$product['name'].'</strong></td>';
+                    $finalHtml .= '<td style=" color:#4d4843;f">'.$product['sku'].'</td>';
+                    $finalHtml .= '<td style=" color:#4d4843;"><strong>'.$product['price'].'</strong></td>';
+                    $finalHtml .= '<td style=" color:#4d4843;font-weight: bold;">'.$product['quantity'].'</td>';
+                    $finalHtml .= '<td style=" font-weight: bold;color:#4d4843;">$'.$product['quantity']*$product['price'].'</td>';
+                    $finalHtml .=  '<\tr>';
+                
+                $total += $product['quantity']*$product['price'];
+                endforeach;
+            endforeach;
+        endif;                                    
+
+        $finalHtml .= '<tr><td><br/></td></tr>
+        <tr>
+        <td style="border-top:1px solid #ddd;font-size: 18px;"></td>
+        <td style=" border-top:1px solid #ddd;font-size: 18px; padding-right: 70px;text-align:right;" colspan="3"><span style="float: right;">Sub Total</span></td>
+        <td style=" color:#4d4843; border-top:1px solid #ddd;font-size: 18px;">$'.$total.'</td>
+        </tr>
+        <tr>
+        <td> </td>
+        <td colspan="3" style="padding-right: 70px;text-align:right;"><span style="float: right; text-align:right;">Shipping &amp; Handling</span></td>
+        <td style="width:10%;">$'.$shipping_handling.'</td>
+        </tr>
+        <tr>
+        <td> </td>
+        <td style="padding-right: 70px;text-align:right;" colspan="3" ><span style="float: right;">Tax</span></td>
+        <td >$'.$tax.'</td>
+        </tr>
+        <tr>
+        <td style=" border-bottom:1px solid #ddd;font-size: 18px;"></td>
+        <td style=" border-bottom:1px solid #ddd;font-size: 18px; padding-right: 70px;text-align:right;" colspan="3"><span style="float: right; font-weight: bold;font-size: 20px;">Grand Total</span></td>';
+        $grandTotal = $total + $shipping_handling +  $tax ;                      
+        $finalHtml .= '<td style="width:10%;border-bottom:1px solid #ddd;font-size: 18px; font-weight: bold;font-size: 20px;">$'.$grandTotal .'</td>
+        </tr>
+
+        </table>
+
+        </td>
+        </tr>
+        </table>
+        </body>
+        </html>';
+        return $finalHtml;    
+
+    }
+
+
+
 
 
 }

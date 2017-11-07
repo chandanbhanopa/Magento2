@@ -19,6 +19,7 @@ class Index extends \Magento\Framework\App\Action\Action {
 	private $apiBaseUrl;
 
 	public function __construct(Context $context) {
+
 		parent :: __construct($context);
 
 		$this->objectManager = ObjectManager::getInstance();
@@ -35,6 +36,8 @@ class Index extends \Magento\Framework\App\Action\Action {
         $this->config['api_password'] = $this->scopeConfig->getValue('docusing_settings/api_settings/api_password');
         $this->config['integrator_key'] = $this->scopeConfig->getValue('docusing_settings/api_settings/api_integrator_key');
 
+        $this->config['send_attachment'] = $this->scopeConfig->getValue('docusing_settings/mangoit_template_settings/send_attachment');
+
 
         $this->config['account_id'] = $this->scopeConfig->getValue('docusing_settings/api_settings/account_id');
 
@@ -47,10 +50,7 @@ class Index extends \Magento\Framework\App\Action\Action {
 
 	public function execute() {
 
-		echo "<pre>";
-		print_r($this->apiBaseUrl);	
-		//print_r(get_class_methods($this->helper));
-		die();
+		$this->helper->createEnvelop($this->config, $this->apiBaseUrl);
 
 	}
 

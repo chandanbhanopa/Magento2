@@ -69,7 +69,8 @@ class Order extends \Magento\Framework\App\Action\Action {
         //die();
 
 
-        $mpdf = new \Mpdf\Mpdf();
+        $mpdf = new \Mpdf\Mpdf(['tempDir' =>'/home/www/devicedesk/pub/media/mpdf_temp']);
+        
         $orderItems = array(
             array(
                 'sku' => 'Mobile LED',
@@ -128,9 +129,8 @@ class Order extends \Magento\Framework\App\Action\Action {
         // alternatively specify an URL, if PHP settings allow
         $base64Sring = base64_encode($pdfData);
 
-        
-
         $base64File = $base64Dir."/base64_".$orderId.".txt";
+
         chmod($base64File, 0777);
 
         $int = file_put_contents($base64File, $base64Sring);

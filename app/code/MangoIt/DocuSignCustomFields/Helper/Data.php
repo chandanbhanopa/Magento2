@@ -68,15 +68,20 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
 
     public $scopeConfigInterface;
 
-    private $apiBaseUrl;
-
     private $accountId;
     
     private $config = array();
 
 
+    private $helper;
+    
+    private $apiSuffix = "/v2/accounts/";
+
+    private $apiBaseUrl;
+
+
     public function __construct(){
-        
+       
     }
 
 
@@ -453,8 +458,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
     /* Create an Envelop and return its id */
     /* Use POST method */
     /* Endpoint: https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes */
-    public function createEnvelop() {
-
+    public function createEnvelop($config = array(), $baseUrl = '') {
+        if(isset($baseUrl)){
+            
+        }
     }
 
 
