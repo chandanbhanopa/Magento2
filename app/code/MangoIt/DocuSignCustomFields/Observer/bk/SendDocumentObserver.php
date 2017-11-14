@@ -40,13 +40,12 @@ class SendDocumentObserver implements ObserverInterface {
 
 		#values that will be shown on pdf file	
 		$pdfOrderVariable = array(
-			"orderId"=>$order->getIncrementId(),
+			"orderId"=>$order->getId(),
 			"orderDate"=>$order->getCreatedAt(),
-			"shippingAndHandling"=>number_format($order->getShippingAmount(),2),
-			"taxAmount"=>number_format($order->getBaseTaxAmount(),2),
-			"grandTotal"=>number_format($order->getBaseGrandTotal(),2)
-		);  
-	
+			"shippingAndHandling"=>$order->getShippingAmount(),
+			"taxAmount"=>$order->getBaseTaxAmount(),
+			"grandTotal"=>$order->getBaseGrandTotal()
+		);	
 		
 	
 		$shipping_address = $order->getBillingAddress()->getData();
@@ -60,7 +59,7 @@ class SendDocumentObserver implements ObserverInterface {
 			$customerName = $firstname.$middlename.$lastname;
 			$customerEmail = $shipping_address['email'];
 			$telephone = $shipping_address['telephone'];
-			$companyName = "Device Desk";
+			$companyName = "MangoIt";
 
 			$addressArray = array();
 			$addressArray['street'] = $shipping_address['street'];
@@ -94,8 +93,8 @@ class SendDocumentObserver implements ObserverInterface {
 					"type"=>$_item->getProductType(),
 					"sku" => $_item->getSku(),
 					"name" => $_item->getName(),
-					"quantity"=> number_format($_item->getQtyOrdered(),1),
-                    "price" => number_format($_item->getPrice(), 2)
+					"quantity"=> $_item->getQtyOrdered(),
+					"price" => $_item->getPrice()
 				);
 
 
@@ -126,18 +125,15 @@ class SendDocumentObserver implements ObserverInterface {
 					$bundleFinalArray = array();
 					if(count($bundleProductOptions) > 0 ) {
 						foreach($bundleProductOptions as $optionKey => $optionValue) {
-							 $bundleFinalArray[$optionKey] = array(
-                                "title"=>$optionValue['value'][0]['title'],
-                                "value"=>"",
-                                "qty" =>number_format($optionValue['value'][0]['qty'],1),
-                                "price"=>number_format($optionValue['value'][0]['price'],2)
-
-                            );
+							$bundleFinalArray['title'] = $optionValue['value'][0]['title']; 
+							$bundleFinalArray['value'] = ''; 
+							$bundleFinalArray['qty'] = $optionValue['value'][0]['qty']; 
+							$bundleFinalArray['price'] = $optionValue['value'][0]['price']; 
 
 						}
 					}
 
-					$finalArray['options'] = $bundleFinalArray;
+					$finalArray['options'] = array($bundleFinalArray);
 					$productArray[$_item->getId()][] = $finalArray;
 				} else if($productType == "configurable") {
 					$configurableOption = array();
@@ -148,16 +144,14 @@ class SendDocumentObserver implements ObserverInterface {
 
 					if(count($configurableOption) > 0 ) {
 						foreach($configurableOption as $configurableOptionKey => $configurableOptionValue) {
-							$configurableFinalArray[] = array(
-                                                            "title"=>$configurableOptionValue['label'],
-                                                            "value"=>$configurableOptionValue['value'],
-                                                            "qty" =>"",
-                                                            "price"=>""
-                                                        ); 
+							$configurableFinalArray['title'] = $configurableOptionValue['label']; 
+							$configurableFinalArray['value'] = $configurableOptionValue['value']; 
+							$configurableFinalArray['qty'] = ""; 
+							$configurableFinalArray['price'] = ""; 
 
 						}
 					}
-					$finalArray['options'] = $configurableFinalArray;
+					$finalArray['options'] = array($configurableFinalArray);
 					$productArray[$_item->getId()][] = $finalArray;
 				} else{
 					$productArray[$_item->getId()][] = $finalArray;
@@ -173,13 +167,13 @@ class SendDocumentObserver implements ObserverInterface {
 			$orderPDF = $this->orderHtml($productArray, $pdfOrderVariable);
 			$mpdf = new \Mpdf\Mpdf(['tempDir' =>'/home/www/devicedesk/pub/media/mpdf_temp']);
 			$mpdf->WriteHTML($orderPDF);
-			$mpdf->output("/home/www/devicedesk/pub/media/order_pdf_summery/order_".$orderId.".pdf", "F");
-			
+			$mpdf->output("order_".$orderId.".pdf", "D");
+
 			/** End PDF code **/
 			//$productStr = explode("\r\n", $productArray);
 			//$productArray['total'] = $orderTotal;
 
-			$productIdStr = "See Order Summery";
+			$productIdStr = implode("\r\n", $productArray);
 			
 
 
@@ -190,16 +184,19 @@ class SendDocumentObserver implements ObserverInterface {
 				$mappingData = json_decode($docusingData[0]['docusing_data'],true);	
 			}
 
+			//echo "<pre>";
+			//print_r($mappingData);
+			//echo "<br>";
 
 			$dataArray['accountno'] = '123456';
 			$dataArray['address'] = $addressStr;
 			$dataArray['company'] = $companyName;
 			$dataArray['contactname'] = $customerName;
 			$dataArray['email'] = $customerEmail;
-			$dataArray['orderid'] = $order->getIncrementId();
+			$dataArray['orderid'] = $orderId;
 			$dataArray['items'] = $productIdStr;
 			$dataArray['phone'] = $telephone;
-			$dataArray['orderdate'] = $order->getCreatedAt();
+			$dataArray['orderdate'] = $orderDate;
 
 			$customFields = array();
 			foreach ($mappingData as $mappingField) {
@@ -210,13 +207,17 @@ class SendDocumentObserver implements ObserverInterface {
 					);
 				}
 			}
-			
-			/* API call */
-	        $helper = $objectManager->get('MangoIt\DocuSign\Helper\Data');
-	        $helper->createEnvelop($orderId, $customFields);
+
+
+
+
+			//$helper->checkpost($customFields, );
+			//echo "<pre>";
+			//print_r($customFields);
+
 		}
 
-		
+		die;
 	}
 
     /**
@@ -307,24 +308,12 @@ class SendDocumentObserver implements ObserverInterface {
 								
 					    }
 					}
-					if($product['type'] == "bundle" ) {
-                        if(!empty($product['options'])) {
-                            $finalHtml .='<table>';
-                            foreach($product['options'] as $option) :
-                                $finalHtml.= '<tr><td><strong style="color:#000;">'.$option['title'].'</strong></td></tr>';
-                                $finalHtml.= '<tr><td>'.(int)$option['qty'].'&nbsp;x&nbsp;'.$option['title'].'&nbsp;'.$option['price'].'</td></tr>';
-                            endforeach;
-                            $finalHtml .='</table>';
-                                
-                        }
-                    }
 
 
                     $finalHtml .= '<td style="vertical-align: top;color:#4d4843;f">'.$product['sku'].'</td>';
                     $finalHtml .= '<td style="vertical-align: top;color:#4d4843;"><strong>'.$product['price'].'</strong></td>';
-                    $finalHtml .= '<td style="vertical-align: top;color:#4d4843;font-weight: bold;">'.(int)$product['quantity'].'</td>';
-                    $subTotal = number_format($product['quantity']*$product['price'],2);
-                    $finalHtml .= '<td style="vertical-align: top;font-weight: bold;color:#4d4843;">$'.$subTotal.'</td>';
+                    $finalHtml .= '<td style="vertical-align: top;color:#4d4843;font-weight: bold;">'.$product['quantity'].'</td>';
+                    $finalHtml .= '<td style="vertical-align: top;font-weight: bold;color:#4d4843;">$'.$product['quantity']*$product['price'].'</td>';
                     $finalHtml .=  '<\tr>';
                 
                 $total += $product['quantity']*$product['price'];
@@ -336,7 +325,7 @@ class SendDocumentObserver implements ObserverInterface {
         <tr>
         <td style="border-top:1px solid #ddd;font-size: 18px;"></td>
         <td style=" border-top:1px solid #ddd;font-size: 18px; padding-right: 70px;text-align:right;" colspan="3"><span style="float: right;">Sub Total</span></td>
-        <td style=" color:#4d4843; border-top:1px solid #ddd;font-size: 18px;">$'.number_format($total,2).'</td>
+        <td style=" color:#4d4843; border-top:1px solid #ddd;font-size: 18px;">$'.$total.'</td>
         </tr>
         <tr>
         <td> </td>
@@ -351,6 +340,7 @@ class SendDocumentObserver implements ObserverInterface {
         <tr>
         <td style=" border-bottom:1px solid #ddd;font-size: 18px;"></td>
         <td style=" border-bottom:1px solid #ddd;font-size: 18px; padding-right: 70px;text-align:right;" colspan="3"><span style="float: right; font-weight: bold;font-size: 20px;">Grand Total</span></td>';
+        $grandTotal = $total + $shipping_handling +  $tax ;                      
         $finalHtml .= '<td style="width:10%;border-bottom:1px solid #ddd;font-size: 18px; font-weight: bold;font-size: 20px;">$'.$pdfOrderVariable['grandTotal'] .'</td>
         </tr>
 

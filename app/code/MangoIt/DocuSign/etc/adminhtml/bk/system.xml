@@ -50,10 +50,9 @@
                     <validate>validate-number</validate>
                 </field>
                 <!--Attachment option for order summery-->
-                <field id="send_attachment" translate="label comment" type="select" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" >
+                <field id="send_attachment" translate="label comment" type="checkbox" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" >
                     <label>Send Attachment</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Send order summery with document</comment>
+                    <comment>Please check this if you want send order summery attachment with document</comment>
                 </field>
             </group>
             <group id="mangoit_template_settings" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
