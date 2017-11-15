@@ -37,7 +37,7 @@ class SendDocumentObserver implements ObserverInterface {
 		$orderId = $observer->getEvent()->getOrderIds();
 		$order = $this->order->load($orderId);
 		$orderId = $order->getId();
-
+		$userEmail = $order->getCustomerEmail();
 		#values that will be shown on pdf file	
 		$pdfOrderVariable = array(
 			"orderId"=>$order->getIncrementId(),
@@ -213,7 +213,7 @@ class SendDocumentObserver implements ObserverInterface {
 			
 			/* API call */
 	        $helper = $objectManager->get('MangoIt\DocuSign\Helper\Data');
-	        $helper->createEnvelop($orderId, $customFields);
+	        $helper->createEnvelop($orderId, $customFields, $userEmail);
 		}
 
 		
@@ -258,7 +258,7 @@ class SendDocumentObserver implements ObserverInterface {
         </tr>
         <tr>
         <td>
-        <span style="font-family:Arial; font-size:24px;color:#4d4843"><strong>Order #'.$pdfOrderVariable['orderId'].'</strong></span>
+        <span style="font-family:Arial; font-size:24px;color:#4d4843"><strong>Proposal #'.$pdfOrderVariable['orderId'].'</strong></span>
         </td>
         </tr>
 

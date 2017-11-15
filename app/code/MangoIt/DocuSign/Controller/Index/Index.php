@@ -90,9 +90,10 @@ class Index extends \Magento\Framework\App\Action\Action {
 
     public function execute() {
 
-        
-       // $this->backupCode();
-        $this->stepFirst();
+ 
+
+        $this->backupCode();
+        //$this->stepFirst();
         die;
 
 
@@ -128,8 +129,9 @@ class Index extends \Magento\Framework\App\Action\Action {
 
         $orderModel = $objectManager->create("\Magento\Sales\Model\Order");
         
-        $order = $orderModel->load(18);
+        $order = $orderModel->load(44);
         $orderId = $order->getId();
+        $userEmail = $order->getCustomerEmail();
 
         #values that will be shown on pdf file  
         $pdfOrderVariable = array(
@@ -322,7 +324,7 @@ class Index extends \Magento\Framework\App\Action\Action {
         }
 
             $helper = $objectManager->get('MangoIt\DocuSign\Helper\Data');
-            $helper->createEnvelop(18, $customFields);
+            $helper->createEnvelop(44, $customFields, $userEmail);
 
 
     }

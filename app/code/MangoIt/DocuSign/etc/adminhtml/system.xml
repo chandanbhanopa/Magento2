@@ -58,15 +58,29 @@
             </group>
             <group id="mangoit_template_settings" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                <label>Template settings</label>
+                <field id="recipient_email" translate="label comment" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" >
+                    <label>Recipient Email</label>
+                    <comment>Must match Docusing template configuration</comment>
+                    <validate>required-entry validate-email</validate>
+                </field>
+
+                <field id="recipient_full_name" translate="label comment" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" >
+                    <label>Recipient Name</label>
+                    <comment>Must match Docusing template configuration</comment>
+                    <validate>required-entry</validate>
+                </field>
+
                 <field id="subject" translate="label comment" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" >
                     <label>Email template subject</label>
                     <comment>This subject will be displayed in email</comment>
+                    <validate>required-entry</validate>
                 </field>
                 <field id="template_id" translate="label comment" type="text" sortOrder="2" 
                 showInDefault="1" showInWebsite="1" showInStore="1"
                 >
                     <label>Template id</label>
                     <comment>Use document/template id that need to share</comment>
+                   <validate>required-entry</validate>
                 </field>
             </group>
             <group id="mangoid_cc_email" translate="label" type="text" sortOrder="11" showInDefault="1"

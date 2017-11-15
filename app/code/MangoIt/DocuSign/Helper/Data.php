@@ -13,8 +13,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
 
 	private $apiSuffix = "/v2/accounts/";
 
+    
+
     public function __construct(Context $context){
+
         parent::__construct($context);
+
 
         $this->objectManager = ObjectManager::getInstance();
         $this->scopeConfigInterface = 'Magento\Framework\App\Config\ScopeConfigInterface';
@@ -28,9 +32,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         $this->config['account_id']=$this->scopeConfig->getValue('docusing_settings/api_settings/account_id');
         $this->config['send_attachment']=$this->scopeConfig->getValue('docusing_settings/api_settings/send_attachment');
         $this->config['template_id']=$this->scopeConfig->getValue('docusing_settings/mangoit_template_settings/template_id');
-        $this->config['subject']=$this->scopeConfig->getValue('docusing_settings/mangoit_template_settings/subject');
-
-
+        $this->config['subject'] = $this->scopeConfig->getValue('docusing_settings/mangoit_template_settings/subject');
+        $this->config['recipient_email'] = $this->scopeConfig->getValue("docusing_settings/mangoit_template_settings/recipient_email");
+        $this->config['recipient_full_name'] = $this->scopeConfig->getValue("docusing_settings/mangoit_template_settings/recipient_full_name");
+        
 
     }
 
@@ -38,57 +43,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
     /* Create an Envelop and return its id */
     /* Use POST method */
     /* Endpoint: https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes */
-    public function createEnvelop( $orderId = 18, $customFields = array()) {
+    public function createEnvelop( $orderId = 18, $customFields = array(), $customerEmail) {
        
+
+
         $templateRoleName = "signer";
         $status = "created";
-       
- 
-         if(empty($customFields)) {
-
-            $customFields = array(
-                array(
-                    "tabLabel"=>"ddaccount",
-                    "value"=>"985631477"
-                ),
-                array( 
-                    "tabLabel"=>"ddaddress",
-                    "value"=>"14, Old Avanue"
-                ),
-                array(
-                    "tabLabel"=>"ddcompany",
-                    "value"=>"Device Desk"
-                ),
-                array(
-                    "tabLabel"=>"ddcontactname",
-                    "value"=>"Magento Contact Name"
-                ),
-                array(
-                    "tabLabel"=>"ddemail",
-                    "value"=>"abc@gmail.com"
-                ),
-                array(
-                    "tabLabel"=>"ddorder",
-                    "value"=>"Magento order"
-                ),
-                array(
-                    "tabLabel"=>"ddorderblock",
-                    "value"=>"Magento Order Items"
-                ),
-                array(
-                    "tabLabel"=>"ddphone",
-                    "value"=>"12345678"
-                ),
-                array(
-                    "tabLabel"=>"ddsubmitdate",
-                    "value"=>"14 Oct 2017"
-                )
-            );
-         }
-        
-
-
-
         
         #set header
         $header = "<DocuSignCredentials><Username>" . $this->config['api_user_name'] . "</Username><Password>" . $this->config['api_password'] . "</Password><IntegratorKey>" . $this->config['api_integrator_key'] . "</IntegratorKey></DocuSignCredentials>";
@@ -106,7 +66,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
             "templateId" => $this->config['template_id'], 
             "templateRoles" => array( 
                 array( 
-                    "email" => "neeta.anylinuxwork@gmail.com", 
+                    "email" => $this->config['recipient_email'],
+                    "name" => $this->config['recipient_full_name'],
                     "roleName" => $templateRoleName ,
                     "tabs" => array(
                         "textTabs"=> $customFields
@@ -133,12 +94,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         $response = json_decode($json_response, true);
         $response['orderId'] = $orderId;
         
-        
-        // echo "<h2>Step1: request</h2><br>";
-        // print_r($data);
-        // echo "<h3>Response</h3><br>";
-        // print_r($response);
-       
+        #************* Creating logs *******************#
+        $logArray = array("step"=>"Creating draft","method"=>"POST","parameters"=>$data,"response"=>$response);
+        $this->logGeneration($logArray);
+        #************* End logs *******************#
+
 
         if($status == "201") {
            $this->addDocumentToEnvelop($response);
@@ -154,8 +114,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         
     }
 
-
-    /**
+   /**
     Step 2: Add the additional document(s)
     Endpoint: https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes/<envelope ID>/documents
     Method : PUT
@@ -222,13 +181,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         #PDF DIRECTORY PATH
         $pdfDir = $mediaPath."order_pdf_summery";
         $pdfFile = $pdfDir."/order_".$orderId.".pdf";
+        $orderFileName = "Summary_".$orderId.".pdf";
+        
         $pdfData = file_get_contents($pdfFile);
         // alternatively specify an URL, if PHP settings allow
         $base64Sring = base64_encode($pdfData);
        
         $data = array("status"=>"template");
         $data['documents'][] = array(
-            "name" => "OrderSummery",
+            "name" => $orderFileName,
             "documentId"=>2,
             "documentBase64" => $base64Sring
         ); 
@@ -242,7 +203,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
         curl_setopt($curl, CURLOPT_HTTPHEADER, array( 
             'Content-Type: application/json', 
-            'Content-Disposition: form-data; filename="ordersummery.pdf"; documentid=1; fileExtension="pdf"',
+            "Content-Disposition: form-data; filename=$orderFileName; documentid=1; fileExtension='pdf'",
             'Content-Length: ' . strlen($data_string),
             "X-DocuSign-Authentication: $header",
             'X-HTTP-Method-Override: PUT'
@@ -252,15 +213,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $response = json_decode($json_response, true);
         $response['status'] = $status;
-        // echo "<br><hr>";
-        // echo "<h2>Step2: request</h2><br>";
-        // print_r($data);
-        // echo "<h3>Response</h3><br>";
-        // print_r($response);
+
+        #************* Creating logs *******************#
+        $logArray = array("step"=>"Adding document to envelope ","method"=>"PUT","parameters"=>array(
+            "name" => $orderFileName,
+            "documentId"=>2,
+        ),"response"=>$response);
+        $this->logGeneration($logArray);
+        #************* End logs *******************#
 
         if($response['status'] == 200) {
            //$this->applyTemplateToAddedDocument($response);
-           $this->sendRequest($envelopeResponse['uri']);
+            $this->updateRecipient($envelopeResponse['uri']);
+            $this->sendRequest($envelopeResponse['uri']);
            
         } else {
           // echo "<br>Error calling DocuSign, status is: " . $status; 
@@ -298,7 +263,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
 
         # https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes/<envelope ID>/documents/<document ID>/templates
 
-        echo "Applied Template To Document<br>";
+       
         if($this->config['sandbox_mode']){
             $baseUrl = $this->config['api_sandbox_hostname'];    
         } else {
@@ -341,8 +306,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
             $response = json_decode($json_response, true);
             $response['status'] = $status;
             
-            //echo "<pre>";
-            //print_r($response);
+            echo "<pre>";
+            print_r($response);
                 
 
 
@@ -407,17 +372,76 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         $response = json_decode($json_response, true);
         $response['status'] = $status;
 
-        /*
-        echo "<br><hr>";
-        echo "<h2>Step4: request</h2><br>";
-        print_r($data);
-        echo "<h3>Response</h3><br>";
-        print_r($response);
-        die("end");
-        */
+        #************* Creating logs *******************#
+        $logArray = array("step"=>"Document Sent","method"=>"PUT","parameters"=>$data,"response"=>$response);
+        $this->logGeneration($logArray);
+        #************* End logs *******************#
+
         
     }
 
+    private function logGeneration($data) {
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/docusing.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(json_encode($data));
+    }
+
+
+    public function updateRecipient( $envelopeUrl = "" ) {
+       
+         #https://demo.docusign.net/restapi/v2/accounts/<ACCOUNTID>/envelopes/<ENVELOPEID>/recipients
+        if($this->config['sandbox_mode']){
+            $baseUrl = $this->config['api_sandbox_hostname'];    
+        } else {
+            $baseUrl = $this->config['api_live_hostname'];    
+        }
+
+        $header = "<DocuSignCredentials><Username>" . $this->config['api_user_name'] . "</Username><Password>" . $this->config['api_password'] . "</Password><IntegratorKey>" . $this->config['api_integrator_key'] . "</IntegratorKey></DocuSignCredentials>";
+
+        $baseUrl = $baseUrl.$this->apiSuffix.$this->config['account_id'].$envelopeUrl."/recipients";
+
+        $data['signers'][] = array(
+            "email" => "neeta.anylinuxwork@gmail.com",
+            "name"=>"Neeta B",
+            "recipientId" => 1
+        );
+
+        $data['carbonCopies'][] = array(
+            "name" => "Greg Rudakov",
+            "email" => "greg.rudakov@devicedesk.com", 
+            "recipientId" => 2
+        );
+         
+
+    
+        $data_string = json_encode($data);  
+        $curl = curl_init($baseUrl);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT"); // note the PUT here
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array( 
+            'Content-Type: application/json', 
+            'Content-Length: ' . strlen($data_string),
+            "X-DocuSign-Authentication: $header",
+            'X-HTTP-Method-Override: PUT'
+            )                                   
+        );
+        $json_response = curl_exec($curl);
+        $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $response = json_decode($json_response, true);
+        $response['status'] = $status;
+        
+        #************* Creating logs *******************#
+        $logArray = array("step"=>"Document Sent","method"=>"PUT","parameters"=>$data,"response"=>$response);
+        $this->logGeneration($logArray);
+        #************* End logs *******************#
+
+
+
+
+    }
    
 
 

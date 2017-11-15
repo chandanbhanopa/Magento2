@@ -7,8 +7,7 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-<!--         <css src="css/loginpage.css" />
- -->        <css src="MangoIt_Backend::css/loginpage.css" order="102"/>
+        <css src="MangoIt_Backend::css/loginpage.css" order="102"/>
      </head> 
     <!-- <body>
         <referenceBlock name="top.search" remove="true" />
