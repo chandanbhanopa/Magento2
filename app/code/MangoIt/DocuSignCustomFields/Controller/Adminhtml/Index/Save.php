@@ -6,7 +6,8 @@ class Save extends \Magento\Backend\App\Action {
 	
 	public function execute() {
 		$object_manager = \Magento\Framework\App\ObjectManager::getInstance();
-		$helper = $object_manager->get('MangoIt\DocuSignCustomFields\Helper\Data');
+		#$helper = $object_manager->get('MangoIt\DocuSignCustomFields\Helper\Data');
+		$helper = $object_manager->get('MangoIt\DocuSign\Helper\Data');
 		$apiField = $helper->getCustiomFields();
 
 		/*Model Object*/

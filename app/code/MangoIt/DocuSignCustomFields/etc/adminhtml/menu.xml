@@ -3,6 +3,7 @@
     <menu>
         <add id="MangoIt_DocuSignCustomFields::parent" title="DocuSIGN CustomFields" module="MangoIt_DocuSignCustomFields" sortOrder="10" resource="MangoIt_DocuSignCustomFields::parent"/>
         <add id="MangoIt_DocuSignCustomFields::index" title="Custom Variable Settings" module="MangoIt_DocuSignCustomFields" sortOrder="10" action="docusigncustomfields/index" resource="MangoIt_DocuSignCustomFields::index" parent="MangoIt_DocuSignCustomFields::parent"/>
+        <add id="MangoIt_DocuSignCustomFields::help" title="Help section" module="MangoIt_DocuSignCustomFields" sortOrder="10" action="docusigncustomfields/index/help" resource="MangoIt_DocuSignCustomFields::help" parent="MangoIt_DocuSignCustomFields::parent"/>
 		
     </menu>
 </config>

@@ -78,7 +78,7 @@ class Index extends \Magento\Framework\App\Action\Action {
 
     private $base64dir;
 
-
+    
 
     public function __construct(Context $context) {
 
@@ -90,11 +90,24 @@ class Index extends \Magento\Framework\App\Action\Action {
 
     public function execute() {
 
- 
-
+        //$objectManager = ObjectManager::getInstance();
+        
+        // $customerOb = $objectManager->get("\Magento\Customer\Api\CustomerRepositoryInterface");
+        // $customer = $customerOb->getById(2);
+        // echo "<pre>";
+        // //print_r(get_class_methods($customer));
+        // //$customer->getCustomAttributes()->get
+        // $allAttr = $customer->getCustomAttributes('landmark')->getValue();
+        // print_r($allAttr['landmark']);
+        // print_r($allAttr['contact_name']);
+        // //print_r($customer->getCustomAttribute('landmark')->getValue());
+        // echo "hello";
+        //print_r($customer->getData());
+        //die();
+        #print_r($customer->getCustomAttribute('landmark')->getValue());
         $this->backupCode();
         //$this->stepFirst();
-        die;
+       // die;
 
 
     }
@@ -129,10 +142,13 @@ class Index extends \Magento\Framework\App\Action\Action {
 
         $orderModel = $objectManager->create("\Magento\Sales\Model\Order");
         
-        $order = $orderModel->load(44);
+        $order = $orderModel->load(55);
         $orderId = $order->getId();
-        $userEmail = $order->getCustomerEmail();
-
+        $customerData = array(
+                            "name"=>$order->getCustomerName(), 
+                            "email"=>$order->getCustomerEmail()
+                        );
+        
         #values that will be shown on pdf file  
         $pdfOrderVariable = array(
             "orderId"=>$order->getIncrementId(),
@@ -302,6 +318,10 @@ class Index extends \Magento\Framework\App\Action\Action {
             }
 
 
+            $customerOb = $objectManager->get("\Magento\Customer\Api\CustomerRepositoryInterface");
+            $customer = $customerOb->getById($order->getCustomerId());
+           
+
             $dataArray['accountno'] = '123456';
             $dataArray['address'] = $addressStr;
             $dataArray['company'] = $companyName;
@@ -313,18 +333,30 @@ class Index extends \Magento\Framework\App\Action\Action {
             $dataArray['orderdate'] = $order->getCreatedAt();
 
             $customFields = array();
+            //print_r($customer->getCustomAttributes());die;
+            $customerAttributes = $customer->getCustomAttributes();
             foreach ($mappingData as $mappingField) {
                 if(isset($dataArray[$mappingField["docusing_map_value"]])) {
                     $customFields[] = array(
                         "tabLabel"=> $mappingField["docusing_label"],
                         "value"=>$dataArray[$mappingField["docusing_map_value"]]
                     );
+                } else {
+                    if(array_key_exists($mappingField["docusing_map_value"], $customer->getCustomAttributes())){
+                        $customerAttribute = $customer->getCustomAttribute($mappingField["docusing_map_value"])->getValue();
+                        $customFields[] = array(
+                            "tabLabel"=> $mappingField["docusing_label"],
+                            "value"=>$customerAttribute
+                        );
+                    }
+                        
                 }
+
+                
             }
         }
-
             $helper = $objectManager->get('MangoIt\DocuSign\Helper\Data');
-            $helper->createEnvelop(44, $customFields, $userEmail);
+            $helper->createEnvelop(44, $customFields, $customerData);
 
 
     }

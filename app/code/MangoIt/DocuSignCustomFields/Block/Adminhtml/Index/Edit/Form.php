@@ -18,7 +18,8 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic  {
 
 
       $this->om = \Magento\Framework\App\ObjectManager::getInstance();
-      $helper = $this->om->get('MangoIt\DocuSignCustomFields\Helper\Data');
+      $helper = $this->om->get('MangoIt\DocuSign\Helper\Data');
+
       $apiData = $helper->getCustiomFields();
 
       /** @var \Magento\Framework\Data\Form $form */
@@ -40,10 +41,11 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic  {
           'class'  => 'fieldset-wide'
         ]
       );
+       
 
       $fieldsData  =  $this->loadDbData();
-      //die;
       foreach($apiData as $fields){
+
         $fieldset->addField(
           $fields['id'],
           'text',
@@ -51,7 +53,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic  {
             'name'  => $fields['label'],
             'label' => $fields['label'],
             'required' => true,
-            'note' => $fields['label'],
+            'note' => isset($fieldsData[$fields['label']]) ?  $fieldsData[$fields['label']] : "",
             'value'=> isset($fieldsData[$fields['label']]) ? $fieldsData[$fields['label']] : ""
           ]
         ); 

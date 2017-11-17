@@ -11,7 +11,7 @@
             <label>MangoIt</label>
         </tab>
         <section id="docusing_settings" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Docusing Settings</label>
+            <label>DocuSign Settings</label>
             <tab>mangoit_docusign</tab>
             <resource>MangoIt_DocuSign::config</resource>
             <group id="api_settings" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -46,7 +46,7 @@
                 <!--Docusing Account Number Field-->
                 <field id="account_id" translate="label comment" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" >
                     <label>Account Id</label>
-                    <comment>Docusing account id</comment>
+                    <comment>DocuSign account id</comment>
                     <validate>validate-number</validate>
                 </field>
                 <!--Attachment option for order summery-->
@@ -60,13 +60,13 @@
                <label>Template settings</label>
                 <field id="recipient_email" translate="label comment" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" >
                     <label>Recipient Email</label>
-                    <comment>Must match Docusing template configuration</comment>
+                    <comment>Must match DocuSign template configuration</comment>
                     <validate>required-entry validate-email</validate>
                 </field>
 
                 <field id="recipient_full_name" translate="label comment" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" >
                     <label>Recipient Name</label>
-                    <comment>Must match Docusing template configuration</comment>
+                    <comment>Must match DocuSign template configuration</comment>
                     <validate>required-entry</validate>
                 </field>
 
@@ -85,10 +85,16 @@
             </group>
             <group id="mangoid_cc_email" translate="label" type="text" sortOrder="11" showInDefault="1"
                 showInWebsite="1" showInStore="1">
-                <label>CC email address</label>
+                <label>Carbon copy user</label>
+                <field id="cc_name" translate="label comment" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" >
+                    <label>Full Name</label>
+                    <comment>Name of user who will recieve carbon copy of docuement</comment>
+                </field>
+
                 <field id="cc_email" translate="label comment" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" >
                     <label>Email address</label>
                     <comment>This user will recieve a same copy of document</comment>
+                    <validate>validate-email</validate>
                 </field>
             </group>
         </section>

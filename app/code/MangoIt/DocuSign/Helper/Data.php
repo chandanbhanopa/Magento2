@@ -13,7 +13,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
 
 	private $apiSuffix = "/v2/accounts/";
 
-    
+    private $customerData;
 
     public function __construct(Context $context){
 
@@ -35,18 +35,31 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         $this->config['subject'] = $this->scopeConfig->getValue('docusing_settings/mangoit_template_settings/subject');
         $this->config['recipient_email'] = $this->scopeConfig->getValue("docusing_settings/mangoit_template_settings/recipient_email");
         $this->config['recipient_full_name'] = $this->scopeConfig->getValue("docusing_settings/mangoit_template_settings/recipient_full_name");
+        /**Carbon Copy user**/
+        $this->config['cc_name'] = $this->scopeConfig->getValue("docusing_settings/mangoit_cc_email/cc_name");
+        $this->config['cc_email'] = $this->scopeConfig->getValue("docusing_settings/mangoit_cc_email/cc_email");
+
         
 
     }
 
-	
+	private function setCustomerData($customerData) {
+
+        $this->customerData = $customerData;
+
+    }
+
+    private function getCustomerData() {
+
+        return $this->customerData;
+    }
     /* Create an Envelop and return its id */
     /* Use POST method */
     /* Endpoint: https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes */
-    public function createEnvelop( $orderId = 18, $customFields = array(), $customerEmail) {
+    public function createEnvelop( $orderId = 18, $customFields = array(), $customerData) {
        
-
-
+        $this->setCustomerData($customerData);
+        
         $templateRoleName = "signer";
         $status = "created";
         
@@ -401,19 +414,23 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
 
         $baseUrl = $baseUrl.$this->apiSuffix.$this->config['account_id'].$envelopeUrl."/recipients";
 
+        $customer = $this->getCustomerData();
+
         $data['signers'][] = array(
-            "email" => "neeta.anylinuxwork@gmail.com",
-            "name"=>"Neeta B",
+            "email" => $customer['email'],
+            "name"=>$customer['name'],
             "recipientId" => 1
         );
 
-        $data['carbonCopies'][] = array(
-            "name" => "Greg Rudakov",
-            "email" => "greg.rudakov@devicedesk.com", 
-            "recipientId" => 2
-        );
-         
-
+        if($this->config['cc_email']) {
+            $data['carbonCopies'][] = array(
+                "name" => $this->config['cc_name'],
+                "email" => $this->config['cc_email'], 
+                "recipientId" => 2
+            );    
+        }
+        
+        
     
         $data_string = json_encode($data);  
         $curl = curl_init($baseUrl);
@@ -437,8 +454,43 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         $logArray = array("step"=>"Document Sent","method"=>"PUT","parameters"=>$data,"response"=>$response);
         $this->logGeneration($logArray);
         #************* End logs *******************#
+    }
 
+    public function getCustiomFields(){
 
+         $header = "<DocuSignCredentials><Username>" . $this->config['api_user_name'] . "</Username><Password>" . $this->config['api_password'] . "</Password><IntegratorKey>" . $this->config['api_integrator_key'] . "</IntegratorKey></DocuSignCredentials>";
+        if($this->config['sandbox_mode']){
+            $baseUrl = $this->config['api_sandbox_hostname'];    
+        } else {
+            $baseUrl = $this->config['api_live_hostname'];    
+        }
+        #$this->apiBaseUrl."/tab_definitions?custom_tab_only=true"
+        $baseUrl = $baseUrl.$this->apiSuffix.$this->config['account_id']."/tab_definitions?custom_tab_only=true";
+        
+        $curl = curl_init($baseUrl);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array("X-DocuSign-Authentication: $header"));
+        
+        
+        $json_response = curl_exec($curl);
+        $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        if ( $status != 200 ) {
+            echo "error calling webservice, status is:" . $status;
+            exit(-1);
+        }
+        $response = json_decode($json_response, true);
+        curl_close($curl);
+
+        $fields = array();
+        foreach($response['tabs'] as $key=>$value){
+            $fields[$value["tabLabel"]]= array(
+                "id"=>$value["customTabId"],
+                "label"=>$value["tabLabel"], 
+                "type"=>$value["type"]
+
+            );
+        }
+        return $fields;
 
 
     }

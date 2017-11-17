@@ -37,7 +37,10 @@ class SendDocumentObserver implements ObserverInterface {
 		$orderId = $observer->getEvent()->getOrderIds();
 		$order = $this->order->load($orderId);
 		$orderId = $order->getId();
-		$userEmail = $order->getCustomerEmail();
+		$customerData = array(
+                            "name"=>$order->getCustomerName(), 
+                            "email"=>$order->getCustomerEmail()
+                        );
 		#values that will be shown on pdf file	
 		$pdfOrderVariable = array(
 			"orderId"=>$order->getIncrementId(),
@@ -191,6 +194,9 @@ class SendDocumentObserver implements ObserverInterface {
 			}
 
 
+			$customerOb = $objectManager->get("\Magento\Customer\Api\CustomerRepositoryInterface");
+            $customer = $customerOb->getById($order->getCustomerId());
+
 			$dataArray['accountno'] = '123456';
 			$dataArray['address'] = $addressStr;
 			$dataArray['company'] = $companyName;
@@ -202,18 +208,28 @@ class SendDocumentObserver implements ObserverInterface {
 			$dataArray['orderdate'] = $order->getCreatedAt();
 
 			$customFields = array();
+			$customerAttributes = $customer->getCustomAttributes();
 			foreach ($mappingData as $mappingField) {
 				if(isset($dataArray[$mappingField["docusing_map_value"]])) {
 					$customFields[] = array(
 						"tabLabel"=> $mappingField["docusing_label"],
 						"value"=>$dataArray[$mappingField["docusing_map_value"]]
 					);
-				}
+				} else {
+                    if(array_key_exists($mappingField["docusing_map_value"], $customer->getCustomAttributes())){
+                        $customerAttribute = $customer->getCustomAttribute($mappingField["docusing_map_value"])->getValue();
+                        $customFields[] = array(
+                            "tabLabel"=> $mappingField["docusing_label"],
+                            "value"=>$customerAttribute
+                        );
+                    }
+                        
+                }
 			}
-			
+			 
 			/* API call */
 	        $helper = $objectManager->get('MangoIt\DocuSign\Helper\Data');
-	        $helper->createEnvelop($orderId, $customFields, $userEmail);
+	        $helper->createEnvelop($orderId, $customFields, $customerData);
 		}
 
 		
@@ -243,7 +259,7 @@ class SendDocumentObserver implements ObserverInterface {
         <meta http-equiv="content-type" content="text/html; charset=utf-8">
         <meta name="keywords" content="">
         </head>
-        <body style="margin: auto; background:#cecece;font-family:Arial">
+        <body style="margin: auto; background:#FFF;font-family:Arial">
         <table width="100%" height="100%" border="0" cellspacing="30" cellpadding="0" align="center" style="margin:auto; background:#fff">
         <tr>
         <td style="width: 100%">

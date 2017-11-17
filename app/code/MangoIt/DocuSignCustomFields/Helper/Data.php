@@ -126,9 +126,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         error_reporting(E_ALL);
         ini_set("dispaly_errors", 1);
 
-        $this->apiUserName = "neeta.anylinuxwork@gmail.com";
-        $this->apiPassword = "test@1234";
-        $this->integratorKey = "7d717775-d616-4021-85cb-4fa14581b249";
+        // $this->apiUserName = "neeta.anylinuxwork@gmail.com";
+        // $this->apiPassword = "test@1234";
+        // $this->integratorKey = "7d717775-d616-4021-85cb-4fa14581b249";
 
         $url = "https://demo.docusign.net/restapi/v2/login_information";
 
@@ -212,6 +212,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
             exit(-1);
         }
         $response = json_decode($json_response, true);
+        
+        echo "<pre>";
+        print_r($response);
+        die();
         curl_close($curl);
         //--- display results
         //echo "Envelope has following document(s) information...\n";
@@ -450,104 +454,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
     }
 
 
-    public function curlRequest(){
 
-    }
-
-
-    /* Create an Envelop and return its id */
-    /* Use POST method */
-    /* Endpoint: https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes */
-    public function createEnvelop($config = array(), $baseUrl = '') {
-        if(isset($baseUrl)){
-            
-        }
-    }
-
-
-    /**
-    Step 2: Add the additional document(s)
-    Endpoint: https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes/<envelope ID>/documents
-    Method : PUT
-
-    Now that the draft is created, 
-    you can add all the documents by making a PUT request to the following.
-    Please note that you’ll need to convert the file binary to base64
-
-    {
-
-    "documents": [{
-
-        "documentId": "2",
-
-        "name": "Additional Document 1.pdf",
-
-        "order": "2",
-
-        "pages": "1",
-
-        "documentBase64": "<insert base64 content here>"
-
-    }]
-
-    }
-
-    */
-
-
-    public function addDocumentToEnvelop(){
-
-    }
-
-    /**
-    Step 3: Apply the original template to each added document
-    Endpoint: https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes/<envelope ID>/documents/<document ID>/templates
-
-    Method: POST
-
-    {
-
-    "documentTemplates": [{
-
-        "templateId": "1345312b-f341-abc3-9178-44h15f7d1gha",
-
-        "documentId": "2",
-
-        "documentStartPage": "1",
-
-        "documentEndPage": "1"
-
-    }]
-
-    }
-
-    */
     
 
-    public function applyTemplateToAddedDocument(){
-
-    }
-
-    /**
-    Step 4: Send the envelope
-
-    With the documents added and templates re-applied, simply do a PUT on the envelope to send it out.
-
-    Endpoint: https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes/<envelope ID>
-
-    Method: PUT
-
-    {
-
-    "status": "sent"
-
-    }
-
-    */
-    public function sendRequest(){
-
-    }
-
+ 
 
 
 }
