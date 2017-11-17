@@ -9,11 +9,14 @@
     <system>
         <section id="payment">
                 <group id="docusignpayment" translate="label" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Docusign Payment</label>
+                    <label>DocuSIGN Payment</label>
                     <field id="active" translate="label comment" sortOrder="1" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Enable</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     </field>
+                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>DocuSIGN Payment</label>
+                </field>
                 </group>
         </section>
     </system>

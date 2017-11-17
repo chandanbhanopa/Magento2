@@ -120,7 +120,6 @@ class Index extends \Magento\Framework\App\Action\Action {
         $fileSystem = $objectManager->get('\Magento\Framework\Filesystem');
 
         $mediaPath  =   $fileSystem->getDirectoryRead(DirectoryList::MEDIA)->getAbsolutePath();
-        
 
         #PDF DIRECTORY PATH
         $pdfDir = $mediaPath."order_pdf_summery";
@@ -142,7 +141,7 @@ class Index extends \Magento\Framework\App\Action\Action {
 
         $orderModel = $objectManager->create("\Magento\Sales\Model\Order");
         
-        $order = $orderModel->load(55);
+        $order = $orderModel->load(62);
         $orderId = $order->getId();
         $customerData = array(
                             "name"=>$order->getCustomerName(), 
@@ -160,7 +159,8 @@ class Index extends \Magento\Framework\App\Action\Action {
 
 
         $shipping_address = $order->getBillingAddress()->getData();
-        
+
+       
         
         if ($shipping_address) {
             
@@ -170,7 +170,7 @@ class Index extends \Magento\Framework\App\Action\Action {
             $customerName = $firstname.$middlename.$lastname;
             $customerEmail = $shipping_address['email'];
             $telephone = $shipping_address['telephone'];
-            $companyName = "MangoIt";
+            $companyName = $shipping_address['company'];
 
             $addressArray = array();
             $addressArray['street'] = $shipping_address['street'];
@@ -204,8 +204,8 @@ class Index extends \Magento\Framework\App\Action\Action {
                     "type"=>$_item->getProductType(),
                     "sku" => $_item->getSku(),
                     "name" => $_item->getName(),
-                    "quantity"=> number_format($_item->getQtyOrdered(),1),
-                    "price" => number_format($_item->getPrice(), 2)
+                    "quantity"=> $_item->getQtyOrdered(),
+                    "price" => $_item->getPrice()
                 );
 
 
@@ -289,7 +289,8 @@ class Index extends \Magento\Framework\App\Action\Action {
             #To save
             $pdfFile = $pdfDir."/order_".$orderId.".pdf";
             $b = is_writable($pdfFile);
-            
+            $mpdf->output();
+            die();
             $mpdf->output("/home/www/devicedesk/pub/media/order_pdf_summery/order_".$orderId.".pdf", "F");
           
 
@@ -355,8 +356,8 @@ class Index extends \Magento\Framework\App\Action\Action {
                 
             }
         }
-            $helper = $objectManager->get('MangoIt\DocuSign\Helper\Data');
-            $helper->createEnvelop(44, $customFields, $customerData);
+            //$helper = $objectManager->get('MangoIt\DocuSign\Helper\Data');
+            //$helper->createEnvelop(44, $customFields, $customerData);
 
 
     }
@@ -364,10 +365,21 @@ class Index extends \Magento\Framework\App\Action\Action {
     public function orderHtml($orderItems = array(), $pdfOrderVariable = array()) {
 
         $om = ObjectManager::getInstance();
+        $imageObj= $om->get('\Magento\Theme\Block\Html\Header\Logo');
+        $image = $imageObj->getLogoSrc();
+
+        /*
         $storeManager = $om->get('Magento\Store\Model\StoreManagerInterface');
         $imgname = 'sales_express.png';
         $image = $storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . $imgname;
+        */
 
+       
+        // $logoObj = $objectManager->get('\Magento\Theme\Block\Html\Header\Logo');
+        // echo $logoObj->getLogoSrc()."<br>";
+        // echo $logoObj->getLogoAlt()."<br>";
+        // echo $logoObj->getLogoWidth()."<br>";
+        // echo $logoObj->getLogoHeight()."<br>";
 
         $finalHtml = '<!DOCTYPE html>
         <html>
@@ -384,7 +396,7 @@ class Index extends \Magento\Framework\App\Action\Action {
         <table style="width: 100%">
         <tr>
         <td style="text-align: left;">
-        <span><img src = "'.$image.'"/></span><br/>
+        <span style="width:100px; display:inline-block; "><img src = "'.$image.'" style="max-width:50%;"/></span><br/>
         </td>
         </tr>
         <tr>
@@ -457,10 +469,10 @@ class Index extends \Magento\Framework\App\Action\Action {
 
 
                     $finalHtml .= '<td style="vertical-align: top;color:#4d4843;f">'.$product['sku'].'</td>';
-                    $finalHtml .= '<td style="vertical-align: top;color:#4d4843;"><strong>'.$product['price'].'</strong></td>';
+                    $finalHtml .= '<td style="vertical-align: top;color:#4d4843;"><strong>'.number_format($product['price'],2).'</strong></td>';
                     $finalHtml .= '<td style="vertical-align: top;color:#4d4843;font-weight: bold;">'.(int)$product['quantity'].'</td>';
-                    $subTotal = number_format($product['quantity']*$product['price'],2);
-                    $finalHtml .= '<td style="vertical-align: top;font-weight: bold;color:#4d4843;">$'.$subTotal.'</td>';
+                    $subTotal =  $product['quantity']*$product['price'];
+                    $finalHtml .= '<td style="vertical-align: top;font-weight: bold;color:#4d4843;">$'.number_format($subTotal, 2).'</td>';
                     $finalHtml .=  '<\tr>';
                 
                 $total += $product['quantity']*$product['price'];
