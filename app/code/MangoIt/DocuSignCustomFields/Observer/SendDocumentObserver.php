@@ -276,7 +276,7 @@ class SendDocumentObserver implements ObserverInterface {
         <meta name="keywords" content="">
         </head>
         <body style="margin: auto; background:#FFF;font-family:Arial">
-        <table width="100%" height="100%" border="0" cellspacing="30" cellpadding="0" align="center" style="margin:auto; background:#fff">
+        <table width="120%" height="100%" border="0" cellspacing="5" cellpadding="0" align="center" style="margin:auto; background:#fff;">
         <tr>
         <td style="width: 100%">
         <table style="width: 100%">
@@ -290,19 +290,19 @@ class SendDocumentObserver implements ObserverInterface {
         </tr>
         <tr>
         <td>
-        <span style="font-family:Arial;color:#4d4843"><strong>Proposal #'.$pdfOrderVariable['orderId'].'</strong></span>
+        <span style="font-family:Arial; font-size:20px;color:#4d4843"><strong>Order #'.$pdfOrderVariable['orderId'].'</strong></span>
         </td>
         </tr>
 
         </table>
         <br/>
-        <table style="width: 100%;" cellpadding="10" cellspacing="0">
+        <table style="width: 100%;overflow: wrap;" cellpadding="5" cellspacing="0">
         <tr>
-        <td style="width:63%; border-bottom:1px solid #ddd;color:#4d4843;"><strong>Product Name</strong></td>
-        <td style="width:20%; border-bottom:1px solid #ddd;color:#4d4843;"><strong>SKU</strong></td>
-        <td style="width:10%; border-bottom:1px solid #ddd;color:#4d4843;"><strong>Price</strong></td>
-        <td style="width:10%; border-bottom:1px solid #ddd;color:#4d4843; "><strong>Qty</strong></td>
-        <td style="width:10%; border-bottom:1px solid #ddd;color:#4d4843;"><strong>Subtotal</strong></td>
+        <td style="width:40%; border-bottom:1px solid #ddd;font-size:13px;color:#4d4843;"><strong>Product Name</strong></td>
+        <td style="width:20%; border-bottom:1px solid #ddd;font-size: 13px;color:#4d4843;"><strong>SKU</strong></td>
+        <td style="width:12%; border-bottom:1px solid #ddd;font-size: 13px; color:#4d4843;"><strong>Price</strong></td>
+        <td style="width:10%; border-bottom:1px solid #ddd;font-size: 13px;color:#4d4843; "><strong>Qty</strong></td>
+        <td style="width:20%; border-bottom:1px solid #ddd;font-size: 13px;color:#4d4843;"><strong>Subtotal</strong></td>
 
         </tr>';
 
@@ -315,74 +315,77 @@ class SendDocumentObserver implements ObserverInterface {
             foreach($orderItems as $productArray):
                  foreach($productArray as $product):
                     $finalHtml .=  '<tr>';
-                    $finalHtml .= ' <td style="width:50%; color:#4d4843;vertical-align: top;"><strong>'.$product['name'].'</strong></td>';
+                    $finalHtml .= ' <td style="width:50%;color:#000;font-size: 12px;vertical-align: top;"><strong>'.$product['name'].'</strong></td>';
                     if($product['type'] == "simple" ) {
-	                    if(!empty($product['options'])) {
-	                    	$finalHtml .='<table>';
-	                    	foreach($product['options'] as $option) :
-	                    		$finalHtml.= '<tr><td><strong style="color:#000;">'.$option['title'].'</strong></td></tr>';
-								$finalHtml.= '<tr><td>'.$option['value'].'</td></tr>';
-							endforeach;
-	                    	$finalHtml .='</table>';
-								
-					    }
-					}
-
-					if($product['type'] == "configurable" ) {
-	                    if(!empty($product['options'])) {
-	                    	$finalHtml .='<table>';
-	                    	foreach($product['options'] as $option) :
-	                    		$finalHtml.= '<tr><td><strong style="color:#000;">'.$option['title'].'</strong></td></tr>';
-								$finalHtml.= '<tr><td>'.$option['value'].'</td></tr>';
-							endforeach;
-	                    	$finalHtml .='</table>';
-								
-					    }
-					}
-					if($product['type'] == "bundle" ) {
                         if(!empty($product['options'])) {
                             $finalHtml .='<table>';
                             foreach($product['options'] as $option) :
-                                $finalHtml.= '<tr><td><strong style="color:#000;">'.$option['title'].'</strong></td></tr>';
-                                $finalHtml.= '<tr><td>'.(int)$option['qty'].'&nbsp;x&nbsp;'.$option['title'].'&nbsp;'.$option['price'].'</td></tr>';
+                                // $finalHtml.= '<tr><td style="font-size: 12px;><strong style="color:#000;">'.$option['title'].'</strong></td></tr>';
+                                $finalHtml.= '<tr><td style="font-size: 13px;">'.$option['value'].'</td></tr>';
                             endforeach;
                             $finalHtml .='</table>';
                                 
                         }
                     }
 
-                    $finalHtml .= '<td style="vertical-align: top;color:#4d4843;f">'.$product['sku'].'</td>';
-                    $finalHtml .= '<td style="vertical-align: top;color:#4d4843;"><strong>'.number_format($product['price'],2).'</strong></td>';
-                    $finalHtml .= '<td style="vertical-align: top;color:#4d4843;font-weight: bold;">'.(int)$product['quantity'].'</td>';
+                    if($product['type'] == "configurable" ) {
+                        if(!empty($product['options'])) {
+                            $finalHtml .='<table>';
+                            foreach($product['options'] as $option) :
+                                // $finalHtml.= '<tr><td style="font-size: 12px;><strong style="color:#000;">'.$option['title'].'</strong></td></tr>';
+                                $finalHtml.= '<tr><td style="font-size: 13px;">'.$option['value'].'</td></tr>';
+                            endforeach;
+                            $finalHtml .='</table>';
+                                
+                        }
+                    }
+
+
+                    if($product['type'] == "bundle" ) {
+                        if(!empty($product['options'])) {
+                            $finalHtml .='<table>';
+                            foreach($product['options'] as $option) :
+                                // $finalHtml.= '<tr><td style="font-size: 12px;"><strong style="color:#000;">'.$option['title'].'</strong></td></tr>';
+                                $finalHtml.= '<tr><td style="font-size: 13px;color:#000">'.(int)$option['qty'].'&nbsp;x&nbsp;'.$option['title'].'&nbsp;</td></tr>';
+                            endforeach;
+                            $finalHtml .='</table>';
+                                
+                        }
+                    }
+
+
+                    $finalHtml .= '<td style="vertical-align: top;color:#000;font-size:12px;">'.$product['sku'].'</td>';
+                    $finalHtml .= '<td style="vertical-align: top;color:#000;font-size:12px;"><strong>'.number_format($product['price'],2).'</strong></td>';
+                    $finalHtml .= '<td style="vertical-align: top;color:#000;font-weight: bold;">'.(int)$product['quantity'].'</td>';
                     $subTotal =  $product['quantity']*$product['price'];
-                    $finalHtml .= '<td style="vertical-align: top;font-weight: bold;color:#4d4843;">$'.number_format($subTotal, 2).'</td>';
+                    $finalHtml .= '<td width="25%" style="vertical-align: top;font-weight: bold;color:#000;font-size:12px;">$'.number_format($subTotal, 2).'</td>';
                     $finalHtml .=  '<\tr>';
                 
-                	$total += $product['quantity']*$product['price'];
+                $total += $product['quantity']*$product['price'];
                 endforeach;
             endforeach;
         endif;                                    
 
         $finalHtml .= '<tr><td><br/></td></tr>
         <tr>
-        <td style="border-top:1px solid #ddd;"></td>
-        <td style=" border-top:1px solid #ddd; padding-right: 70px;text-align:right;" colspan="3"><span style="float: right;">Sub Total</span></td>
-        <td style=" color:#4d4843; border-top:1px solid #ddd;">$'.number_format($total,2).'</td>
+        <td style="border-top:1px solid #ddd;font-size: 11px;"></td>
+        <td style=" border-top:1px solid #ddd;font-size: 13px; padding-right: 70px;text-align:right;" colspan="3"><span style="float: right;">Sub Total</span></td>
+        <td style=" color:#000; border-top:1px solid #ddd;font-size:13px;">$'.number_format($total,2).'</td>
         </tr>
         <tr>
         <td> </td>
         <td colspan="3" style="padding-right: 70px;text-align:right;"><span style="float: right; text-align:right;">Shipping &amp; Handling</span></td>
-        <td style="width:10%;">$'.$shipping_handling.'</td>
+        <td style="width:50%; ont-size: 11px;">$'.$shipping_handling.'</td>
         </tr>
         <tr>
         <td> </td>
-        <td style="padding-right: 70px;text-align:right;" colspan="3" ><span style="float: right;">Tax</span></td>
+        <td style="padding-right: 70px;text-align:right; ont-size: 11px;" colspan="3" ><span style="float: right;">Tax</span></td>
         <td >$'.$tax.'</td>
         </tr>
         <tr>
-        <td style=" border-bottom:1px solid #ddd;"></td>
-        <td style=" border-bottom:1px solid #ddd; padding-right: 70px;text-align:right;" colspan="3"><span style="float: right; font-weight: bold;">Grand Total</span></td>';
-        $finalHtml .= '<td style="width:10%;border-bottom:1px solid #ddd; font-weight: bold;">$'.$pdfOrderVariable['grandTotal'] .'</td>
+        <td style=" border-bottom:1px solid #ddd;font-size: 11px;"></td>
+        <td style=" border-bottom:1px solid #ddd;font-size: 11px; padding-right: 70px;text-align:right;" colspan="3"><span style="float: right; font-weight: bold;font-size: 11px;">Grand Total</span></td>';
+        $finalHtml .= '<td style="width:10%;border-bottom:1px solid #ddd;font-size: 11px; font-weight: bold;font-size: 12px;">$'.$pdfOrderVariable['grandTotal'] .'</td>
         </tr>
 
         </table>

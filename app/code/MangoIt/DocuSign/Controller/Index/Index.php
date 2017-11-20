@@ -141,7 +141,7 @@ class Index extends \Magento\Framework\App\Action\Action {
 
         $orderModel = $objectManager->create("\Magento\Sales\Model\Order");
         
-        $order = $orderModel->load(62);
+        $order = $orderModel->load(140);
         $orderId = $order->getId();
         $customerData = array(
                             "name"=>$order->getCustomerName(), 
@@ -284,6 +284,7 @@ class Index extends \Magento\Framework\App\Action\Action {
             $orderPDF = $this->orderHtml($productArray, $pdfOrderVariable);
             $mpdf = new \Mpdf\Mpdf(['tempDir' =>'/home/www/devicedesk/pub/media/mpdf_temp']);
             $mpdf->WriteHTML($orderPDF);
+            $mpdf->SetDisplayMode('fullpage');
             #To download
             //$mpdf->output("order_".$orderId.".pdf", "D");
             #To save
@@ -368,19 +369,7 @@ class Index extends \Magento\Framework\App\Action\Action {
         $imageObj= $om->get('\Magento\Theme\Block\Html\Header\Logo');
         $image = $imageObj->getLogoSrc();
 
-        /*
-        $storeManager = $om->get('Magento\Store\Model\StoreManagerInterface');
-        $imgname = 'sales_express.png';
-        $image = $storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . $imgname;
-        */
-
        
-        // $logoObj = $objectManager->get('\Magento\Theme\Block\Html\Header\Logo');
-        // echo $logoObj->getLogoSrc()."<br>";
-        // echo $logoObj->getLogoAlt()."<br>";
-        // echo $logoObj->getLogoWidth()."<br>";
-        // echo $logoObj->getLogoHeight()."<br>";
-
         $finalHtml = '<!DOCTYPE html>
         <html>
         <head>
@@ -389,8 +378,8 @@ class Index extends \Magento\Framework\App\Action\Action {
         <meta http-equiv="content-type" content="text/html; charset=utf-8">
         <meta name="keywords" content="">
         </head>
-        <body style="margin: auto; background:#cecece;font-family:Arial">
-        <table width="100%" height="100%" border="0" cellspacing="30" cellpadding="0" align="center" style="margin:auto; background:#fff">
+        <body style="margin: auto; background:#FFF;font-family:Arial">
+        <table width="120%" height="100%" border="0" cellspacing="5" cellpadding="0" align="center" style="margin:auto; background:#fff;">
         <tr>
         <td style="width: 100%">
         <table style="width: 100%">
@@ -404,19 +393,19 @@ class Index extends \Magento\Framework\App\Action\Action {
         </tr>
         <tr>
         <td>
-        <span style="font-family:Arial; font-size:24px;color:#4d4843"><strong>Order #'.$pdfOrderVariable['orderId'].'</strong></span>
+        <span style="font-family:Arial; font-size:20px;color:#4d4843"><strong>Order #'.$pdfOrderVariable['orderId'].'</strong></span>
         </td>
         </tr>
 
         </table>
         <br/>
-        <table style="width: 100%;" cellpadding="10" cellspacing="0">
+        <table style="width: 100%;overflow: wrap;" cellpadding="5" cellspacing="0">
         <tr>
-        <td style="width:63%; border-bottom:1px solid #ddd;font-size:18px;color:#4d4843;"><strong>Product Name</strong></td>
-        <td style="width:20%; border-bottom:1px solid #ddd;font-size: 18px;color:#4d4843;"><strong>SKU</strong></td>
-        <td style="width:10%; border-bottom:1px solid #ddd;font-size: 18px; color:#4d4843;"><strong>Price</strong></td>
-        <td style="width:10%; border-bottom:1px solid #ddd;font-size: 18px;color:#4d4843; "><strong>Qty</strong></td>
-        <td style="width:10%; border-bottom:1px solid #ddd;font-size: 18px;color:#4d4843;"><strong>Subtotal</strong></td>
+        <td style="width:40%; border-bottom:1px solid #ddd;font-size:13px;color:#4d4843;"><strong>Product Name</strong></td>
+        <td style="width:20%; border-bottom:1px solid #ddd;font-size: 13px;color:#4d4843;"><strong>SKU</strong></td>
+        <td style="width:12%; border-bottom:1px solid #ddd;font-size: 13px; color:#4d4843;"><strong>Price</strong></td>
+        <td style="width:10%; border-bottom:1px solid #ddd;font-size: 13px;color:#4d4843; "><strong>Qty</strong></td>
+        <td style="width:20%; border-bottom:1px solid #ddd;font-size: 13px;color:#4d4843;"><strong>Subtotal</strong></td>
 
         </tr>';
 
@@ -429,13 +418,13 @@ class Index extends \Magento\Framework\App\Action\Action {
             foreach($orderItems as $productArray):
                  foreach($productArray as $product):
                     $finalHtml .=  '<tr>';
-                    $finalHtml .= ' <td style="width:50%; color:#4d4843;font-size: 16px;vertical-align: top;"><strong>'.$product['name'].'</strong></td>';
+                    $finalHtml .= ' <td style="width:50%;color:#000;font-size: 12px;vertical-align: top;"><strong>'.$product['name'].'</strong></td>';
                     if($product['type'] == "simple" ) {
                         if(!empty($product['options'])) {
                             $finalHtml .='<table>';
                             foreach($product['options'] as $option) :
-                                $finalHtml.= '<tr><td><strong style="color:#000;">'.$option['title'].'</strong></td></tr>';
-                                $finalHtml.= '<tr><td>'.$option['value'].'</td></tr>';
+                                // $finalHtml.= '<tr><td style="font-size: 12px;><strong style="color:#000;">'.$option['title'].'</strong></td></tr>';
+                                $finalHtml.= '<tr><td style="font-size: 13px;">'.$option['value'].'</td></tr>';
                             endforeach;
                             $finalHtml .='</table>';
                                 
@@ -446,8 +435,8 @@ class Index extends \Magento\Framework\App\Action\Action {
                         if(!empty($product['options'])) {
                             $finalHtml .='<table>';
                             foreach($product['options'] as $option) :
-                                $finalHtml.= '<tr><td><strong style="color:#000;">'.$option['title'].'</strong></td></tr>';
-                                $finalHtml.= '<tr><td>'.$option['value'].'</td></tr>';
+                                // $finalHtml.= '<tr><td style="font-size: 12px;><strong style="color:#000;">'.$option['title'].'</strong></td></tr>';
+                                $finalHtml.= '<tr><td style="font-size: 13px;">'.$option['value'].'</td></tr>';
                             endforeach;
                             $finalHtml .='</table>';
                                 
@@ -459,8 +448,8 @@ class Index extends \Magento\Framework\App\Action\Action {
                         if(!empty($product['options'])) {
                             $finalHtml .='<table>';
                             foreach($product['options'] as $option) :
-                                $finalHtml.= '<tr><td><strong style="color:#000;">'.$option['title'].'</strong></td></tr>';
-                                $finalHtml.= '<tr><td>'.(int)$option['qty'].'&nbsp;x&nbsp;'.$option['title'].'&nbsp;'.$option['price'].'</td></tr>';
+                                // $finalHtml.= '<tr><td style="font-size: 12px;"><strong style="color:#000;">'.$option['title'].'</strong></td></tr>';
+                                $finalHtml.= '<tr><td style="font-size: 13px;color:#000">'.(int)$option['qty'].'&nbsp;x&nbsp;'.$option['title'].'&nbsp;</td></tr>';
                             endforeach;
                             $finalHtml .='</table>';
                                 
@@ -468,11 +457,11 @@ class Index extends \Magento\Framework\App\Action\Action {
                     }
 
 
-                    $finalHtml .= '<td style="vertical-align: top;color:#4d4843;f">'.$product['sku'].'</td>';
-                    $finalHtml .= '<td style="vertical-align: top;color:#4d4843;"><strong>'.number_format($product['price'],2).'</strong></td>';
-                    $finalHtml .= '<td style="vertical-align: top;color:#4d4843;font-weight: bold;">'.(int)$product['quantity'].'</td>';
+                    $finalHtml .= '<td style="vertical-align: top;color:#000;font-size:12px;">'.$product['sku'].'</td>';
+                    $finalHtml .= '<td style="vertical-align: top;color:#000;font-size:12px;"><strong>'.number_format($product['price'],2).'</strong></td>';
+                    $finalHtml .= '<td style="vertical-align: top;color:#000;font-weight: bold;">'.(int)$product['quantity'].'</td>';
                     $subTotal =  $product['quantity']*$product['price'];
-                    $finalHtml .= '<td style="vertical-align: top;font-weight: bold;color:#4d4843;">$'.number_format($subTotal, 2).'</td>';
+                    $finalHtml .= '<td width="25%" style="vertical-align: top;font-weight: bold;color:#000;font-size:12px;">$'.number_format($subTotal, 2).'</td>';
                     $finalHtml .=  '<\tr>';
                 
                 $total += $product['quantity']*$product['price'];
@@ -482,24 +471,24 @@ class Index extends \Magento\Framework\App\Action\Action {
 
         $finalHtml .= '<tr><td><br/></td></tr>
         <tr>
-        <td style="border-top:1px solid #ddd;font-size: 18px;"></td>
-        <td style=" border-top:1px solid #ddd;font-size: 18px; padding-right: 70px;text-align:right;" colspan="3"><span style="float: right;">Sub Total</span></td>
-        <td style=" color:#4d4843; border-top:1px solid #ddd;font-size: 18px;">$'.number_format($total,2).'</td>
+        <td style="border-top:1px solid #ddd;font-size: 11px;"></td>
+        <td style=" border-top:1px solid #ddd;font-size: 13px; padding-right: 70px;text-align:right;" colspan="3"><span style="float: right;">Sub Total</span></td>
+        <td style=" color:#000; border-top:1px solid #ddd;font-size:13px;">$'.number_format($total,2).'</td>
         </tr>
         <tr>
         <td> </td>
         <td colspan="3" style="padding-right: 70px;text-align:right;"><span style="float: right; text-align:right;">Shipping &amp; Handling</span></td>
-        <td style="width:10%;">$'.$shipping_handling.'</td>
+        <td style="width:50%; ont-size: 11px;">$'.$shipping_handling.'</td>
         </tr>
         <tr>
         <td> </td>
-        <td style="padding-right: 70px;text-align:right;" colspan="3" ><span style="float: right;">Tax</span></td>
+        <td style="padding-right: 70px;text-align:right; ont-size: 11px;" colspan="3" ><span style="float: right;">Tax</span></td>
         <td >$'.$tax.'</td>
         </tr>
         <tr>
-        <td style=" border-bottom:1px solid #ddd;font-size: 18px;"></td>
-        <td style=" border-bottom:1px solid #ddd;font-size: 18px; padding-right: 70px;text-align:right;" colspan="3"><span style="float: right; font-weight: bold;font-size: 20px;">Grand Total</span></td>';
-        $finalHtml .= '<td style="width:10%;border-bottom:1px solid #ddd;font-size: 18px; font-weight: bold;font-size: 20px;">$'.$pdfOrderVariable['grandTotal'] .'</td>
+        <td style=" border-bottom:1px solid #ddd;font-size: 11px;"></td>
+        <td style=" border-bottom:1px solid #ddd;font-size: 11px; padding-right: 70px;text-align:right;" colspan="3"><span style="float: right; font-weight: bold;font-size: 11px;">Grand Total</span></td>';
+        $finalHtml .= '<td style="width:10%;border-bottom:1px solid #ddd;font-size: 11px; font-weight: bold;font-size: 12px;">$'.$pdfOrderVariable['grandTotal'] .'</td>
         </tr>
 
         </table>
