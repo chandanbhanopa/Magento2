@@ -13,12 +13,12 @@
                         type="submit"
                         data-bind="
                         click: placeOrder,
-                        attr: {title: $t('Place Order')},
+                        attr: {title: $t('Get Quote')},
                         css: {disabled: !isPlaceOrderActionAllowed()},
                         enable: (getCode() == isChecked())
                         "
                         disabled>
-                    <span data-bind="i18n: 'Place Order'"></span>
+                    <span data-bind="i18n: 'Get Quote'"></span>
                 </button>
             </div>
         </div>

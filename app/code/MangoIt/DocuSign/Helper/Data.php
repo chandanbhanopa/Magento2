@@ -75,7 +75,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         /** Request formate**/
         $data = array(
             "accountId" => $this->config['account_id'], 
-            "emailSubject" => "DocuSign API - Signature Request from Template",
+            "emailSubject" => $this->config['subject'],
             "templateId" => $this->config['template_id'], 
             "templateRoles" => array( 
                 array( 
@@ -92,7 +92,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         /*Convert into json*/
         $data_string = json_encode($data); 
 
-        $curl = curl_init($baseUrl . "/envelopes" );
+       
+        $url = $baseUrl . "/envelopes";
+        $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);                
@@ -108,7 +110,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         $response['orderId'] = $orderId;
         
         #************* Creating logs *******************#
-        $logArray = array("step"=>"Creating draft","method"=>"POST","parameters"=>$data,"response"=>$response);
+        $logArray = array("step"=>"Creating draft","URL"=>$url ,"method"=>"POST","parameters"=>$data,"response"=>$response);
+
         $this->logGeneration($logArray);
         #************* End logs *******************#
 
@@ -228,7 +231,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         $response['status'] = $status;
 
         #************* Creating logs *******************#
-        $logArray = array("step"=>"Adding document to envelope ","method"=>"PUT","parameters"=>array(
+        $logArray = array("step"=>"Adding document to envelope ","URL"=>$baseUrl,"method"=>"PUT","parameters"=>array(
             "name" => $orderFileName,
             "documentId"=>2,
         ),"response"=>$response);
@@ -236,7 +239,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         #************* End logs *******************#
 
         if($response['status'] == 200) {
-           //$this->applyTemplateToAddedDocument($response);
             $this->updateRecipient($envelopeResponse['uri']);
             $this->sendRequest($envelopeResponse['uri']);
            
@@ -272,66 +274,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
     */
     
 
-    public function applyTemplateToAddedDocument($apiResponse = array()){
-
-        # https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes/<envelope ID>/documents/<document ID>/templates
-
-       
-        if($this->config['sandbox_mode']){
-            $baseUrl = $this->config['api_sandbox_hostname'];    
-        } else {
-            $baseUrl = $this->config['api_live_hostname'];    
-        }
-
-        if(empty($apiResponse)){
-          //return "Please try again";
-        }
-        
-        $header = "<DocuSignCredentials><Username>" . $this->config['api_user_name'] . "</Username><Password>" . $this->config['api_password'] . "</Password><IntegratorKey>" . $this->config['api_integrator_key'] . "</IntegratorKey></DocuSignCredentials>";
-
-
-        foreach($apiResponse['envelopeDocuments'] as $envelope) {
-            $baseUrl =  $baseUrl.$this->apiSuffix.$this->config['account_id'].$envelope['uri']."/templates";
-            
-            $data['documentTemplates'][] = array(
-                "templateId" => $this->config['template_id'],
-                "documentId"=> $envelope['documentId'],
-                "documentStartPage"=> "1",
-                "documentEndPage"=> "6"
-            );
-
-
-            $data_string = json_encode($data);  
-            $curl = curl_init($baseUrl);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT"); // note the PUT here
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
-            curl_setopt($curl, CURLOPT_HTTPHEADER, array( 
-                'Content-Type: application/json', 
-                'Content-Length: ' . strlen($data_string),
-                "X-DocuSign-Authentication: $header",
-                'X-HTTP-Method-Override: PUT'
-                )                                   
-            );
-            $json_response = curl_exec($curl);
-            $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $response = json_decode($json_response, true);
-            $response['status'] = $status;
-            
-            echo "<pre>";
-            print_r($response);
-                
-
-
-        }
-        //$data = array("status"=>"template");
-         
-        
-
-       
-        
-    }
 
     /**
     Step 4: Send the envelope
@@ -386,7 +328,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         $response['status'] = $status;
 
         #************* Creating logs *******************#
-        $logArray = array("step"=>"Document Sent","method"=>"PUT","parameters"=>$data,"response"=>$response);
+        $logArray = array("step"=>"Document Sent","method"=>"PUT","URL"=>$baseUrl,"parameters"=>$data,"response"=>$response);
         $this->logGeneration($logArray);
         #************* End logs *******************#
 
@@ -451,7 +393,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         $response['status'] = $status;
         
         #************* Creating logs *******************#
-        $logArray = array("step"=>"Document Sent","method"=>"PUT","parameters"=>$data,"response"=>$response);
+        $logArray = array("step"=>"Document Sent","method"=>"PUT","URL"=>$baseUrl,"parameters"=>$data,"response"=>$response);
         $this->logGeneration($logArray);
         #************* End logs *******************#
     }

@@ -89,7 +89,6 @@ class Index extends \Magento\Framework\App\Action\Action {
     }
 
     public function execute() {
-
         //$objectManager = ObjectManager::getInstance();
         
         // $customerOb = $objectManager->get("\Magento\Customer\Api\CustomerRepositoryInterface");
@@ -124,7 +123,7 @@ class Index extends \Magento\Framework\App\Action\Action {
         #PDF DIRECTORY PATH
         $pdfDir = $mediaPath."order_pdf_summery";
 
-        #BASE64 DIRECTORY PATH
+        #BASE64 DIRECTORY PATH`````1`
         $base64dir = $mediaPath."order_base64_summery";
 
         if(!file_exists($pdfDir)){
@@ -141,7 +140,7 @@ class Index extends \Magento\Framework\App\Action\Action {
 
         $orderModel = $objectManager->create("\Magento\Sales\Model\Order");
         
-        $order = $orderModel->load(140);
+        $order = $orderModel->load(143);
         $orderId = $order->getId();
         $customerData = array(
                             "name"=>$order->getCustomerName(), 
@@ -385,7 +384,7 @@ class Index extends \Magento\Framework\App\Action\Action {
         <table style="width: 100%">
         <tr>
         <td style="text-align: left;">
-        <span style="width:100px; display:inline-block; "><img src = "'.$image.'" style="max-width:50%;"/></span><br/>
+        <span style="width:100px; display:inline-block; "><img src = "'.$image.'" style="max-width:40%;"/></span><br/>
         </td>
         </tr>
         <tr>
@@ -393,7 +392,7 @@ class Index extends \Magento\Framework\App\Action\Action {
         </tr>
         <tr>
         <td>
-        <span style="font-family:Arial; font-size:20px;color:#4d4843"><strong>Order #'.$pdfOrderVariable['orderId'].'</strong></span>
+        <span style="font-family:Arial; font-size:20px;color:#4d4843"><strong>Proposal #'.$pdfOrderVariable['orderId'].'</strong></span>
         </td>
         </tr>
 

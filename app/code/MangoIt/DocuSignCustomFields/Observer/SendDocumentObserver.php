@@ -182,8 +182,8 @@ class SendDocumentObserver implements ObserverInterface {
 			$pdfTempDir = $directory->getPath('media')."/mpdf_temp";
 
             $mpdf = new \Mpdf\Mpdf(['tempDir' =>$pdfTempDir,'default_font_size' => 25]);
-
 			$mpdf->WriteHTML($orderPDF);
+			$mpdf->SetDisplayMode('fullpage');
 
 			$pdfFilePath = $directory->getPath('media')."/order_pdf_summery/order_".$orderId.".pdf";
 			$mpdf->output($pdfFilePath, "F");
@@ -276,13 +276,13 @@ class SendDocumentObserver implements ObserverInterface {
         <meta name="keywords" content="">
         </head>
         <body style="margin: auto; background:#FFF;font-family:Arial">
-        <table width="120%" height="100%" border="0" cellspacing="5" cellpadding="0" align="center" style="margin:auto; background:#fff;">
+        <table width="150%" height="100%" border="0" cellspacing="5" cellpadding="0" align="center" style="margin:auto; background:#fff;">
         <tr>
         <td style="width: 100%">
         <table style="width: 100%">
         <tr>
         <td style="text-align: left;">
-        <span style="width:100px; display:inline-block; "><img src = "'.$image.'" style="max-width:50%;"/></span><br/>
+        <span style="width:100px; display:inline-block; "><img src = "'.$image.'" style="max-width:40%;"/></span><br/>
         </td>
         </tr>
         <tr>
@@ -290,7 +290,7 @@ class SendDocumentObserver implements ObserverInterface {
         </tr>
         <tr>
         <td>
-        <span style="font-family:Arial; font-size:20px;color:#4d4843"><strong>Order #'.$pdfOrderVariable['orderId'].'</strong></span>
+        <span style="font-family:Arial; font-size:20px;color:#4d4843"><strong>Proposal #'.$pdfOrderVariable['orderId'].'</strong></span>
         </td>
         </tr>
 
@@ -318,7 +318,7 @@ class SendDocumentObserver implements ObserverInterface {
                     $finalHtml .= ' <td style="width:50%;color:#000;font-size: 12px;vertical-align: top;"><strong>'.$product['name'].'</strong></td>';
                     if($product['type'] == "simple" ) {
                         if(!empty($product['options'])) {
-                            $finalHtml .='<table>';
+                            $finalHtml .='<table style="overflow: wrap;">';
                             foreach($product['options'] as $option) :
                                 // $finalHtml.= '<tr><td style="font-size: 12px;><strong style="color:#000;">'.$option['title'].'</strong></td></tr>';
                                 $finalHtml.= '<tr><td style="font-size: 13px;">'.$option['value'].'</td></tr>';
@@ -330,7 +330,7 @@ class SendDocumentObserver implements ObserverInterface {
 
                     if($product['type'] == "configurable" ) {
                         if(!empty($product['options'])) {
-                            $finalHtml .='<table>';
+                            $finalHtml .='<table style="overflow: wrap;">';
                             foreach($product['options'] as $option) :
                                 // $finalHtml.= '<tr><td style="font-size: 12px;><strong style="color:#000;">'.$option['title'].'</strong></td></tr>';
                                 $finalHtml.= '<tr><td style="font-size: 13px;">'.$option['value'].'</td></tr>';
@@ -343,7 +343,7 @@ class SendDocumentObserver implements ObserverInterface {
 
                     if($product['type'] == "bundle" ) {
                         if(!empty($product['options'])) {
-                            $finalHtml .='<table>';
+                            $finalHtml .='<table style="overflow: wrap;">';
                             foreach($product['options'] as $option) :
                                 // $finalHtml.= '<tr><td style="font-size: 12px;"><strong style="color:#000;">'.$option['title'].'</strong></td></tr>';
                                 $finalHtml.= '<tr><td style="font-size: 13px;color:#000">'.(int)$option['qty'].'&nbsp;x&nbsp;'.$option['title'].'&nbsp;</td></tr>';
@@ -356,7 +356,7 @@ class SendDocumentObserver implements ObserverInterface {
 
                     $finalHtml .= '<td style="vertical-align: top;color:#000;font-size:12px;">'.$product['sku'].'</td>';
                     $finalHtml .= '<td style="vertical-align: top;color:#000;font-size:12px;"><strong>'.number_format($product['price'],2).'</strong></td>';
-                    $finalHtml .= '<td style="vertical-align: top;color:#000;font-weight: bold;">'.(int)$product['quantity'].'</td>';
+                    $finalHtml .= '<td style="vertical-align: top;color:#000;font-weight: bold;font-size: 12px;">'.(int)$product['quantity'].'</td>';
                     $subTotal =  $product['quantity']*$product['price'];
                     $finalHtml .= '<td width="25%" style="vertical-align: top;font-weight: bold;color:#000;font-size:12px;">$'.number_format($subTotal, 2).'</td>';
                     $finalHtml .=  '<\tr>';
@@ -368,24 +368,25 @@ class SendDocumentObserver implements ObserverInterface {
 
         $finalHtml .= '<tr><td><br/></td></tr>
         <tr>
-        <td style="border-top:1px solid #ddd;font-size: 11px;"></td>
-        <td style=" border-top:1px solid #ddd;font-size: 13px; padding-right: 70px;text-align:right;" colspan="3"><span style="float: right;">Sub Total</span></td>
-        <td style=" color:#000; border-top:1px solid #ddd;font-size:13px;">$'.number_format($total,2).'</td>
+        <td style="border-top:1px solid #ddd;font-size:11px;"></td>
+        <td style=" border-top:1px solid #ddd;font-size:12px;padding-right:70px;text-align:right;" colspan="3">
+        <span style="float: right;font-size:12px">Sub Total</span></td>
+        <td style=" color:#000; border-top:1px solid #ddd;font-size:12px;">$'.number_format($total,2).'</td>
         </tr>
         <tr>
         <td> </td>
-        <td colspan="3" style="padding-right: 70px;text-align:right;"><span style="float: right; text-align:right;">Shipping &amp; Handling</span></td>
-        <td style="width:50%; ont-size: 11px;">$'.$shipping_handling.'</td>
+        <td colspan="3" style="padding-right: 70px;text-align:right;"><span style="float: right; text-align:right;font-size:12px">Shipping &amp; Handling</span></td>
+        <td style="width:50%; font-size: 12px;">$'.$shipping_handling.'</td>
         </tr>
         <tr>
         <td> </td>
-        <td style="padding-right: 70px;text-align:right; ont-size: 11px;" colspan="3" ><span style="float: right;">Tax</span></td>
-        <td >$'.$tax.'</td>
+        <td style="padding-right: 70px;text-align:right; ont-size: 12px;" colspan="3" ><span style="float: right;font-size:12px;">Tax</span></td>
+        <td style="font-size:12px;">$'.$tax.'</td>
         </tr>
         <tr>
         <td style=" border-bottom:1px solid #ddd;font-size: 11px;"></td>
-        <td style=" border-bottom:1px solid #ddd;font-size: 11px; padding-right: 70px;text-align:right;" colspan="3"><span style="float: right; font-weight: bold;font-size: 11px;">Grand Total</span></td>';
-        $finalHtml .= '<td style="width:10%;border-bottom:1px solid #ddd;font-size: 11px; font-weight: bold;font-size: 12px;">$'.$pdfOrderVariable['grandTotal'] .'</td>
+        <td style=" border-bottom:1px solid #ddd;font-size: 12px; padding-right: 70px;text-align:right;" colspan="3"><span style="float: right; font-weight: bold;font-size: 12px;">Grand Total</span></td>';
+        $finalHtml .= '<td style="width:10%;border-bottom:1px solid #ddd;font-weight: bold;font-size: 12px;">$'.$pdfOrderVariable['grandTotal'] .'</td>
         </tr>
 
         </table>
