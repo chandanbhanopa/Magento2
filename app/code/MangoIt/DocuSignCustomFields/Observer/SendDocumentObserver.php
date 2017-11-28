@@ -31,7 +31,9 @@ class SendDocumentObserver implements ObserverInterface {
 	public function execute(\Magento\Framework\Event\Observer $observer) {
 
 		$objectManager = ObjectManager::getInstance();
-		$helper = $objectManager->get('MangoIt\DocuSignCustomFields\Helper\Data');
+		$helper = $objectManager->get('MangoIt\DocuSign\Helper\Data');
+		$helper->apiAuthentication();
+		//$helper = $objectManager->get('MangoIt\DocuSignCustomFields\Helper\Data');
 
 		#Directory Object
 		$directory = $objectManager->get('\Magento\Framework\Filesystem\DirectoryList');
@@ -238,7 +240,6 @@ class SendDocumentObserver implements ObserverInterface {
 			}
 			 
 			/* API call */
-	        $helper = $objectManager->get('MangoIt\DocuSign\Helper\Data');
 	        $helper->createEnvelop($orderId, $customFields, $customerData);
 		}
 

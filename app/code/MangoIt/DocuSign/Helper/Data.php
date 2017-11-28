@@ -9,9 +9,9 @@ use \Magento\Framework\App\Filesystem\DirectoryList;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper {
 
-	private $config;
+    private $config;
 
-	private $apiSuffix = "/v2/accounts/";
+    private $apiSuffix = "/v2/accounts/";
 
     private $customerData;
 
@@ -39,11 +39,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         $this->config['cc_name'] = $this->scopeConfig->getValue("docusing_settings/mangoit_cc_email/cc_name");
         $this->config['cc_email'] = $this->scopeConfig->getValue("docusing_settings/mangoit_cc_email/cc_email");
 
-        
+        /* Send on behalf of setting variable*/
+        $this->config['sobo_name'] = $this->scopeConfig->getValue("docusing_settings/mangoit_sobo_setting/sobo_name");
+        $this->config['sobo_email'] = $this->scopeConfig->getValue("docusing_settings/mangoit_sobo_setting/sobo_email");
 
     }
 
-	private function setCustomerData($customerData) {
+    private function setCustomerData($customerData) {
 
         $this->customerData = $customerData;
 
@@ -57,14 +59,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
     /* Use POST method */
     /* Endpoint: https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes */
     public function createEnvelop( $orderId = 18, $customFields = array(), $customerData) {
-       
+
         $this->setCustomerData($customerData);
         
         $templateRoleName = "signer";
         $status = "created";
-        
+
         #set header
-        $header = "<DocuSignCredentials><Username>" . $this->config['api_user_name'] . "</Username><Password>" . $this->config['api_password'] . "</Password><IntegratorKey>" . $this->config['api_integrator_key'] . "</IntegratorKey></DocuSignCredentials>";
+        // $header = "<DocuSignCredentials><Username>" . $this->config['api_user_name'] . "</Username><Password>" . $this->config['api_password'] . "</Password><IntegratorKey>" . $this->config['api_integrator_key'] . "</IntegratorKey></DocuSignCredentials>";
         if($this->config['sandbox_mode']){
             $baseUrl = $this->config['api_sandbox_hostname'];    
         } else {
@@ -92,21 +94,38 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         /*Convert into json*/
         $data_string = json_encode($data); 
 
-       
         $url = $baseUrl . "/envelopes";
+
+
+        /* Get Send On Behalf of User email id*/
+        if(isset($this->config['sobo_email']) && !empty($this->config['sobo_email'])){
+            $emailOnBehalf = $this->config['sobo_email'];
+            $authHeader = array('Authorization: '.$this->config['token_type'].' '.$this->config['access_token'],
+                'Accept: application/json',
+                'X-DocuSign-Act-As-User: '.$emailOnBehalf,
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($data_string)
+            ); 
+        } else {
+            $authHeader = array('Authorization: '.$this->config['token_type'].' '.$this->config['access_token'],
+                'Accept: application/json',
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($data_string)
+            ); 
+        }
+
+
+
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);                
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array( 
-            'Content-Type: application/json', 
-            'Content-Length: ' . strlen($data_string),
-            "X-DocuSign-Authentication: $header")                                   
-        );
+        curl_setopt($curl, CURLOPT_HTTPHEADER,$authHeader);
         $json_response = curl_exec($curl);
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         $response = json_decode($json_response, true);
+
         $response['orderId'] = $orderId;
         
         #************* Creating logs *******************#
@@ -117,18 +136,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
 
 
         if($status == "201") {
-           $this->addDocumentToEnvelop($response);
-        } else if($status == 200) {
+         $this->addDocumentToEnvelop($response);
+     } else if($status == 200) {
 
-        } else {
+     } else {
            //echo "Error calling DocuSign, status is: " . $status; 
-        }
+     }
 
 
-       
 
-        
-    }
+
+
+ }
 
    /**
     Step 2: Add the additional document(s)
@@ -171,7 +190,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
 
         $orderId = $envelopeResponse['orderId']; 
 
-        $header = "<DocuSignCredentials><Username>" . $this->config['api_user_name'] . "</Username><Password>" . $this->config['api_password'] . "</Password><IntegratorKey>" . $this->config['api_integrator_key'] . "</IntegratorKey></DocuSignCredentials>";
         if($this->config['sandbox_mode']){
             $baseUrl = $this->config['api_sandbox_hostname'];    
         } else {
@@ -179,7 +197,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         }
         
 
-       
+
         $baseUrl = $baseUrl.$this->apiSuffix.$this->config['account_id'].$envelopeResponse['uri']."/documents";
         
         //$baseUrl = $baseUrl.$this->apiSuffix.$this->config['account_id']."/envelopes/".$this->config['template_id']."/documents/1";
@@ -202,7 +220,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         $pdfData = file_get_contents($pdfFile);
         // alternatively specify an URL, if PHP settings allow
         $base64Sring = base64_encode($pdfData);
-       
+
         $data = array("status"=>"template");
         $data['documents'][] = array(
             "name" => $orderFileName,
@@ -210,21 +228,35 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
             "documentBase64" => $base64Sring
         ); 
 
-    
+
         $data_string = json_encode($data);  
+
+        if(isset($this->config['sobo_email']) && !empty($this->config['sobo_email'])){
+            $emailOnBehalf = $this->config['sobo_email'];
+            $authHeader = array('Authorization: '.$this->config['token_type'].' '.$this->config['access_token'],
+                'Content-Type: application/json',
+                'X-DocuSign-Act-As-User: '.$emailOnBehalf,
+                "Content-Disposition: form-data; filename=$orderFileName; documentid=1; fileExtension='pdf'",
+                'Content-Length: ' . strlen($data_string),
+                'X-HTTP-Method-Override: PUT'
+            );
+        } else {
+            $authHeader = array('Authorization: '.$this->config['token_type'].' '.$this->config['access_token'],
+                'Content-Type: application/json',
+                "Content-Disposition: form-data; filename=$orderFileName; documentid=1; fileExtension='pdf'",
+                'Content-Length: ' . strlen($data_string),
+                'X-HTTP-Method-Override: PUT'
+            );
+        }
+
+
+
         $curl = curl_init($baseUrl);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT"); // note the PUT here
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array( 
-            'Content-Type: application/json', 
-            "Content-Disposition: form-data; filename=$orderFileName; documentid=1; fileExtension='pdf'",
-            'Content-Length: ' . strlen($data_string),
-            "X-DocuSign-Authentication: $header",
-            'X-HTTP-Method-Override: PUT'
-            )                                   
-        );
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $authHeader);
         $json_response = curl_exec($curl);
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $response = json_decode($json_response, true);
@@ -241,40 +273,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         if($response['status'] == 200) {
             $this->updateRecipient($envelopeResponse['uri']);
             $this->sendRequest($envelopeResponse['uri']);
-           
+
         } else {
           // echo "<br>Error calling DocuSign, status is: " . $status; 
         }
 
 
     }
-
-    /**
-    Step 3: Apply the original template to each added document
-    Endpoint: https://demo.docusign.net/restapi/v2/accounts/<account ID>/envelopes/<envelope ID>/documents/<document ID>/templates
-
-    Method: POST
-
-    {
-
-    "documentTemplates": [{
-
-        "templateId": "1345312b-f341-abc3-9178-44h15f7d1gha",
-
-        "documentId": "2",
-
-        "documentStartPage": "1",
-
-        "documentEndPage": "1"
-
-    }]
-
-    }
-
-    */
     
-
-
     /**
     Step 4: Send the envelope
 
@@ -300,33 +306,44 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         }
 
         if(empty($apiResponse)){
-           
+
         }
         
-        $header = "<DocuSignCredentials><Username>" . $this->config['api_user_name'] . "</Username><Password>" . $this->config['api_password'] . "</Password><IntegratorKey>" . $this->config['api_integrator_key'] . "</IntegratorKey></DocuSignCredentials>";
 
         $baseUrl =  $baseUrl.$this->apiSuffix.$this->config['account_id'].$envalopUrl;
         
 
         $data = array("status"=>"sent");
         $data_string = json_encode($data);  
-        $curl = curl_init($baseUrl);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_POST, true);
+
+        /* Get Send On Behalf of User email id*/
+        if(isset($this->config['sobo_email']) && !empty($this->config['sobo_email'])){
+            $emailOnBehalf = $this->config['sobo_email'];
+
+            $authHeader = array('Authorization: '.$this->config['token_type'].' '.$this->config['access_token'],
+                'Content-Type: application/json',
+                'X-DocuSign-Act-As-User: '.$emailOnBehalf,
+                'Content-Length: ' . strlen($data_string),
+                'X-HTTP-Method-Override: PUT'
+            );
+        } else {
+           $authHeader = array('Authorization: '.$this->config['token_type'].' '.$this->config['access_token'],
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($data_string),
+            'X-HTTP-Method-Override: PUT');
+       }
+
+       $curl = curl_init($baseUrl);
+       curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+       curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT"); // note the PUT here
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array( 
-            'Content-Type: application/json', 
-            'Content-Length: ' . strlen($data_string),
-            "X-DocuSign-Authentication: $header",
-            'X-HTTP-Method-Override: PUT'
-            )                                   
-        );
+        curl_setopt($curl, CURLOPT_HTTPHEADER,  $authHeader);
         $json_response = curl_exec($curl);
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $response = json_decode($json_response, true);
-        $response['status'] = $status;
 
+        $response['status'] = $status;
         #************* Creating logs *******************#
         $logArray = array("step"=>"Document Sent","method"=>"PUT","URL"=>$baseUrl,"parameters"=>$data,"response"=>$response);
         $this->logGeneration($logArray);
@@ -344,7 +361,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
 
 
     public function updateRecipient( $envelopeUrl = "" ) {
-       
+
          #https://demo.docusign.net/restapi/v2/accounts/<ACCOUNTID>/envelopes/<ENVELOPEID>/recipients
         if($this->config['sandbox_mode']){
             $baseUrl = $this->config['api_sandbox_hostname'];    
@@ -352,7 +369,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
             $baseUrl = $this->config['api_live_hostname'];    
         }
 
+
+
+
         $header = "<DocuSignCredentials><Username>" . $this->config['api_user_name'] . "</Username><Password>" . $this->config['api_password'] . "</Password><IntegratorKey>" . $this->config['api_integrator_key'] . "</IntegratorKey></DocuSignCredentials>";
+        
 
         $baseUrl = $baseUrl.$this->apiSuffix.$this->config['account_id'].$envelopeUrl."/recipients";
 
@@ -372,21 +393,31 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
             );    
         }
         
-        
-    
+
         $data_string = json_encode($data);  
+
+        if(isset($this->config['sobo_email']) && !empty($this->config['sobo_email'])){
+            $emailOnBehalf = $this->config['sobo_email'];
+            $authHeader = array('Authorization: '.$this->config['token_type'].' '.$this->config['access_token'],
+                'Content-Type: application/json',
+                'X-DocuSign-Act-As-User: '.$emailOnBehalf,
+                'Content-Length: ' . strlen($data_string),
+                'X-HTTP-Method-Override: PUT'
+            );
+        } else {
+            $authHeader = array('Authorization: '.$this->config['token_type'].' '.$this->config['access_token'],
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($data_string),
+                'X-HTTP-Method-Override: PUT'
+            );
+        }
+
         $curl = curl_init($baseUrl);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT"); // note the PUT here
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array( 
-            'Content-Type: application/json', 
-            'Content-Length: ' . strlen($data_string),
-            "X-DocuSign-Authentication: $header",
-            'X-HTTP-Method-Override: PUT'
-            )                                   
-        );
+        curl_setopt($curl, CURLOPT_HTTPHEADER,  $authHeader);
         $json_response = curl_exec($curl);
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $response = json_decode($json_response, true);
@@ -400,43 +431,188 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
 
     public function getCustiomFields(){
 
-         $header = "<DocuSignCredentials><Username>" . $this->config['api_user_name'] . "</Username><Password>" . $this->config['api_password'] . "</Password><IntegratorKey>" . $this->config['api_integrator_key'] . "</IntegratorKey></DocuSignCredentials>";
-        if($this->config['sandbox_mode']){
-            $baseUrl = $this->config['api_sandbox_hostname'];    
-        } else {
-            $baseUrl = $this->config['api_live_hostname'];    
-        }
-        #$this->apiBaseUrl."/tab_definitions?custom_tab_only=true"
-        $baseUrl = $baseUrl.$this->apiSuffix.$this->config['account_id']."/tab_definitions?custom_tab_only=true";
-        
-        $curl = curl_init($baseUrl);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array("X-DocuSign-Authentication: $header"));
-        
-        
-        $json_response = curl_exec($curl);
-        $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        if ( $status != 200 ) {
-            echo "error calling webservice, status is:" . $status;
-            exit(-1);
-        }
-        $response = json_decode($json_response, true);
-        curl_close($curl);
-
-        $fields = array();
-        foreach($response['tabs'] as $key=>$value){
-            $fields[$value["tabLabel"]]= array(
-                "id"=>$value["customTabId"],
-                "label"=>$value["tabLabel"], 
-                "type"=>$value["type"]
-
-            );
-        }
-        return $fields;
-
-
+       $header = "<DocuSignCredentials><Username>" . $this->config['api_user_name'] . "</Username><Password>" . $this->config['api_password'] . "</Password><IntegratorKey>" . $this->config['api_integrator_key'] . "</IntegratorKey></DocuSignCredentials>";
+       if($this->config['sandbox_mode']){
+        $baseUrl = $this->config['api_sandbox_hostname'];    
+    } else {
+        $baseUrl = $this->config['api_live_hostname'];    
     }
-   
+        #$this->apiBaseUrl."/tab_definitions?custom_tab_only=true"
+    $baseUrl = $baseUrl.$this->apiSuffix.$this->config['account_id']."/tab_definitions?custom_tab_only=true";
+
+    $curl = curl_init($baseUrl);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, array("X-DocuSign-Authentication: $header"));
+
+
+    $json_response = curl_exec($curl);
+    $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    if ( $status != 200 ) {
+        echo "error calling webservice, status is:" . $status;
+        exit(-1);
+    }
+    $response = json_decode($json_response, true);
+    curl_close($curl);
+
+    $fields = array();
+    foreach($response['tabs'] as $key=>$value){
+        $fields[$value["tabLabel"]]= array(
+            "id"=>$value["customTabId"],
+            "label"=>$value["tabLabel"], 
+            "type"=>$value["type"]
+
+        );
+    }
+    return $fields;
+
+
+}
+
+public function createUser(){
+        #POST /restapi/v2/accounts/{accountId}/users
+        #Content-Type: application/json
+        # apiAccountWideAccess
+        # allowSendOnBehalfOf
+
+    $newUsers['newUsers']  = array(
+        array(
+            "userName"=>"Neeta Anylinuxwork",
+            "email" =>"test.tra390@gmail.com",
+            "permissionProfileId"=>"5082424",
+            "permissionProfileName"=>"Account Administrator",
+            "userSettings"=>array(
+                array(
+                    "name" => "apiAccountWideAccess",
+                    "value" => "true"
+                ),
+                array(
+                    "name" => "allowSendOnBehalfOf",
+                    "value" => "true"
+                )
+
+            ),
+            "groupList"=>array(
+                array(
+                    "groupId"=>  "3503481",
+                    "groupName"=>  "Administrators",
+                    "permissionProfileId"=>  "5082424"
+                )
+            )
+
+        )
+
+    );
+
+    $data_string = json_encode($newUsers); 
+    $header = "<DocuSignCredentials><Username>" . $this->config['api_user_name'] . "</Username><Password>" . $this->config['api_password'] . "</Password><IntegratorKey>" . $this->config['api_integrator_key'] . "</IntegratorKey></DocuSignCredentials>";
+    if($this->config['sandbox_mode']){
+        $baseUrl = $this->config['api_sandbox_hostname'];    
+    } else {
+        $baseUrl = $this->config['api_live_hostname'];    
+    }
+
+    $baseUrl = $baseUrl.$this->apiSuffix.$this->config['account_id'];
+
+    $url = $baseUrl . "/users";
+    $curl = curl_init($url);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);                
+    curl_setopt($curl, CURLOPT_HTTPHEADER, array( 
+        'Content-Type: application/json', 
+        'Content-Length: ' . strlen($data_string),
+        "X-DocuSign-Authentication: $header")                                   
+);
+
+    $json_response = curl_exec($curl);
+    $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+    $response = json_decode($json_response, true);
+}
+
+public function apiAuthentication(){
+    error_reporting(E_ALL);
+    ini_set("display_errors",1);
+
+        #Accept: application/json
+        #Content-Type: application/x-www-form-urlencoded
+        #grant_type=password&client_id={IntegratorKey}&username={email}&password={password}&scope=api
+
+    if($this->config['sandbox_mode']){
+        $baseUrl = $this->config['api_sandbox_hostname'];    
+    } else {
+        $baseUrl = $this->config['api_live_hostname'];    
+    }
+
+    $baseUrl =  $baseUrl."/v2/oauth2/token";
+
+    $data_string = "grant_type=password&client_id=".$this->config['api_integrator_key']."&username=".$this->config['api_user_name']."&password=".$this->config['api_password']."&scope=api";
+    $url = $baseUrl;
+    $curl = curl_init($url);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_POSTFIELDS,$data_string);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, array( 
+        'Accept: application/json',
+        'Content-Type: application/x-www-form-urlencoded',
+    )                                   
+);
+    $json_response = curl_exec($curl);
+    $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    $response = json_decode($json_response, true);
+        /*Array(
+            [access_token] => sWNEQZ0HMvk7TTIg0TNJmAeYUqw=
+            [token_type] => bearer
+            [scope] => api
+        ) */
+        if(!empty($response['access_token'])){
+            return $this->operatingUser($response);
+        }
+    }
+
+    public function operatingUser($response = array()) {
+
+        if($response){
+            if($this->config['sandbox_mode']){
+                $baseUrl = $this->config['api_sandbox_hostname'];    
+            } else {
+                $baseUrl = $this->config['api_live_hostname'];    
+            }
+
+            $baseUrl =  $baseUrl."/v2/oauth2/token";
+
+            $data_string = "grant_type=password&client_id=".$this->config['api_integrator_key']."&username=".$this->config['api_user_name']."&password=".$this->config['api_password']."&scope=api";
+            $url = $baseUrl;
+            $curl = curl_init($url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS,$data_string);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, array( 
+                'Authorization: '.$response['token_type'].' '.$response['access_token'],
+                'Accept: application/json',
+                'Content-Type: application/x-www-form-urlencoded',
+                'Content-Length: ' . strlen($data_string)
+            )                                   
+        );
+            $json_response = curl_exec($curl);
+            $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $response = json_decode($json_response, true);    
+
+
+            if(!empty($response['access_token'])){
+                $this->config['token_type'] = $response['token_type'];
+                $this->config['access_token'] =$response['access_token'];
+                return $response;
+            }
+
+
+            
+        }
+    }
+
+
+
+
 
 
 }

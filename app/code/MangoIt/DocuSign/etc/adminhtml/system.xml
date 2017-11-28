@@ -83,7 +83,7 @@
                    <validate>required-entry</validate>
                 </field>
             </group>
-            <group id="mangoid_cc_email" translate="label" type="text" sortOrder="11" showInDefault="1"
+            <group id="mangoit_cc_email" translate="label" type="text" sortOrder="11" showInDefault="1"
                 showInWebsite="1" showInStore="1">
                 <label>Carbon copy user</label>
                 <field id="cc_name" translate="label comment" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" >
@@ -94,6 +94,18 @@
                 <field id="cc_email" translate="label comment" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" >
                     <label>Email address</label>
                     <comment>This user will recieve a same copy of document</comment>
+                    <validate>validate-email</validate>
+                </field>
+            </group>
+            <group id="mangoit_sobo_setting" translate="label" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Send On Behalf Of – User </label>
+                <field id="sobo_name" translate="label comment" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" >
+                    <label>Full Name</label>
+                    <comment>On behalf of user full name</comment>
+                </field>
+                <field id="sobo_email" translate="label comment" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" >
+                    <label>Email</label>
+                    <comment>On behalf of user email id</comment>
                     <validate>validate-email</validate>
                 </field>
             </group>
