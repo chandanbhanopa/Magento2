@@ -1,0 +1,20 @@
+{
+    "name": "CB/Helloworld",
+    "description": "This is hellowold module for learing purpose",
+    "require": {
+        "php": "7.0.2|7.0.4|~7.0.6|~7.1.0",
+    },
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": [
+        "free"
+    ],
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "CB\\Helloworld\\": ""
+        }
+    }
+}
