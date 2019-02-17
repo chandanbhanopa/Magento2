@@ -1,3 +1,3 @@
-# Magento2 sample codes
-This repository is for saving code sample.
+# Magento2 Hello world module
+
 
