@@ -1,3 +1,3 @@
-# Magento2 Hello world module
+# Magento2 Learning Repository
 
 
