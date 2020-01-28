@@ -1,3 +1,1 @@
-# Magento2 Learning Repository
-
-
+This is helloworld module for learing purpose.
