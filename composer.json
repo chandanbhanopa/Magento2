@@ -1,6 +1,7 @@
 {
     "name": "cb/helloworld",
     "description": "hello world extension",
+    "version": "1.0.0",
     "require":{
          "php": "<=7.1.0",
     },
@@ -21,6 +22,5 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true,
-    "version": "1.0.0"
+    "prefer-stable": true
 }
