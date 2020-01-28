@@ -1,6 +1,9 @@
 {
     "name": "cb/helloworld",
     "description": "hello world extension",
+    "require":{
+         "php": "<=7.1.0",
+    },
     "config": {
         "sort-packages": true
     },
