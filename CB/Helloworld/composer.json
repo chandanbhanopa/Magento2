@@ -1,9 +1,6 @@
 {
     "name": "cb/helloworld",
     "description": "Hello world extension",
-    "require": {
-        "php" : ">=5.6"
-    },
     "type": "magento2-module",
     "license": [
         "OSL-3.0",
